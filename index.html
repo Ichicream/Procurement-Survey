@@ -446,7 +446,7 @@
                             <button type="button" onclick="printCurrentSurvey()" class="print-button text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg">
                                 🖨️ พิมพ์แบบสำรวจ
                             </button>
-                            <button type="button" onclick="printItemDetails()" id="printDetailsBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed" title="พิมพ์รายละเอียดพัสดุแบบตาราง" disabled>
+                            <button type="button" onclick="printItemDetails()" id="printDetailsBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed" title="พิมพ์รายละเอียดพัสดุจากข้อมูลที่บันทึกล่าสุด" disabled>
                                 📋 พิมพ์รายละเอียดพัสดุ
                             </button>
                         </div>
@@ -2461,17 +2461,17 @@
         }
 
         function printItemDetails() {
-            // Get the most recently saved data from localStorage
+            // Get the most recently saved data from localStorage (for current survey page only)
             const savedData = localStorage.getItem('surveyData');
             
             if (!savedData) {
-                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลก่อนพิมพ์');
+                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลในหน้านี้ก่อนพิมพ์');
                 return;
             }
 
             const allSavedData = JSON.parse(savedData);
             if (allSavedData.length === 0) {
-                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลก่อนพิมพ์');
+                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลในหน้านี้ก่อนพิมพ์');
                 return;
             }
 
@@ -2483,7 +2483,7 @@
                 return;
             }
 
-            // Prepare items from the latest submission
+            // Prepare items from the latest submission only
             let allItems = [];
             let itemIndex = 1;
             
@@ -2630,27 +2630,37 @@
                         <h1>รายละเอียดงานจัดซื้อจัดจ้าง</h1>
                         <p>ประจำปีงบประมาณ พ.ศ. 2569</p>
                         <p>คณะมนุษยศาสตร์และสังคมศาสตร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี</p>
-                        <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH')}</p>
+                        <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', {
+                            year: 'numeric',
+                            month: 'long', 
+                            day: 'numeric'
+                        })}</p>
                     </div>
 
                     <div class="summary-info">
-                        <strong>จำนวนรายการทั้งหมด: ${allItems.length} รายการ</strong> | 
-                        <strong>ผู้ส่ง: ${latestData.fullName} (${latestData.department})</strong>
+                        <strong>จำนวนรายการทั้งหมด: ${allItems.length} รายการ</strong><br>
+                        <strong>ผู้ส่ง: ${latestData.fullName}</strong><br>
+                        <strong>หน่วยงาน: ${latestData.department}</strong><br>
+                        <strong>โครงการ: ${latestData.projectSelection || 'ไม่ระบุ'}</strong>
                     </div>
 
                     <table class="items-table">
                         <thead>
                             <tr>
                                 <th style="width: 5%;">ลำดับ</th>
-                                <th style="width: 25%;">รายการ</th>
-                                <th style="width: 30%;">รายละเอียดวัสดุ/งานจ้าง</th>
-                                <th style="width: 20%;">วัตถุประสงค์</th>
+                                <th style="width: 22%;">รายการ</th>
+                                <th style="width: 25%;">รายละเอียดวัสดุ/งานจ้าง</th>
+                                <th style="width: 15%;">วัตถุประสงค์</th>
                                 <th style="width: 8%;">จำนวน</th>
-                                <th style="width: 12%;">หน่วยนับ</th>
+                                <th style="width: 10%;">หน่วยนับ</th>
+                                <th style="width: 15%;">งบประมาณ (บาท)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${allItems.map(item => `
+                            ${allItems.map(item => {
+                                const itemData = latestData.items[item.index - 1]; // Get original item data for budget
+                                const itemBudget = itemData ? (itemData.total || 0) : 0;
+                                return `
                                 <tr>
                                     <td class="text-center">${item.index}</td>
                                     <td>${item.description}</td>
@@ -2658,18 +2668,32 @@
                                     <td class="text-center">${item.purpose}</td>
                                     <td class="text-center">${item.quantity}</td>
                                     <td class="text-center">${item.unit}</td>
-                                </tr>
-                            `).join('')}
+                                    <td class="text-right">${itemBudget.toLocaleString('th-TH')}</td>
+                                </tr>`;
+                            }).join('')}
+                            <tr style="background-color: #eff6ff; font-weight: bold;">
+                                <td colspan="6" class="text-right"><strong>รวมทั้งสิ้น:</strong></td>
+                                <td class="text-right"><strong>${(latestData.totalBudget || 0).toLocaleString('th-TH')}</strong></td>
+                            </tr>
                         </tbody>
                     </table>
 
                     <div class="submitter-info">
-                        <div class="submitter-title">ผู้กำหนดรายละเอียด</div>
+                        <div class="submitter-title">ข้อมูลการส่งแบบสำรวจ</div>
                         <div class="submitter-grid">
                             <div class="submitter-item">
-                                <strong>${latestData.fullName}</strong><br>
-                                ${latestData.department}<br>
-                                <small>บันทึกเมื่อ: ${new Date(latestData.submitDate).toLocaleDateString('th-TH')}</small>
+                                <strong>ผู้ส่ง:</strong> ${latestData.fullName}<br>
+                                <strong>หน่วยงาน:</strong> ${latestData.department}<br>
+                                <strong>โครงการ:</strong> ${latestData.projectSelection || 'ไม่ระบุ'}<br>
+                                <strong>ความเร่งด่วน:</strong> ${latestData.urgency || 'ไม่ระบุ'}<br>
+                                <strong>งบประมาณรวม:</strong> ${latestData.totalBudget ? latestData.totalBudget.toLocaleString('th-TH') + ' บาท' : '0 บาท'}<br>
+                                <strong>บันทึกเมื่อ:</strong> ${new Date(latestData.submitDate).toLocaleString('th-TH', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
                             </div>
                         </div>
                     </div>

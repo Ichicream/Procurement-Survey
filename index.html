@@ -446,7 +446,7 @@
                             <button type="button" onclick="printCurrentSurvey()" class="print-button text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg">
                                 🖨️ พิมพ์แบบสำรวจ
                             </button>
-                            <button type="button" onclick="printItemDetails()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300" title="พิมพ์รายละเอียดพัสดุแบบตาราง">
+                            <button type="button" onclick="printItemDetails()" id="printDetailsBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed" title="พิมพ์รายละเอียดพัสดุแบบตาราง" disabled>
                                 📋 พิมพ์รายละเอียดพัสดุ
                             </button>
                         </div>
@@ -1212,10 +1212,24 @@
             // Sync to Firebase
             syncSurveyDataToFirebase(surveyData).then(() => {
                 console.log('✅ Survey data synced to Firebase successfully');
-                alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: สำเร็จ\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" เพื่อพิมพ์เอกสารได้');
+                
+                // Enable print details button after successful save
+                const printDetailsBtn = document.getElementById('printDetailsBtn');
+                if (printDetailsBtn) {
+                    printDetailsBtn.disabled = false;
+                }
+                
+                alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: สำเร็จ\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" หรือ "📋 พิมพ์รายละเอียดพัสดุ" เพื่อพิมพ์เอกสารได้');
             }).catch((error) => {
                 console.error('❌ Failed to sync survey data to Firebase:', error);
-                alert('⚠️ บันทึกข้อมูลในเครื่องเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: ล้มเหลว (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" เพื่อพิมพ์เอกสารได้');
+                
+                // Enable print details button even if Firebase fails (data is still saved locally)
+                const printDetailsBtn = document.getElementById('printDetailsBtn');
+                if (printDetailsBtn) {
+                    printDetailsBtn.disabled = false;
+                }
+                
+                alert('⚠️ บันทึกข้อมูลในเครื่องเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: ล้มเหลว (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" หรือ "📋 พิมพ์รายละเอียดพัสดุ" เพื่อพิมพ์เอกสารได้');
             });
         });
 
@@ -2447,30 +2461,40 @@
         }
 
         function printItemDetails() {
-            // Get current filtered data
-            const filteredData = getCurrentFilteredData();
+            // Get the most recently saved data from localStorage
+            const savedData = localStorage.getItem('surveyData');
             
-            if (filteredData.length === 0) {
-                alert('❌ ไม่มีข้อมูลสำหรับพิมพ์ หรือข้อมูลถูกกรองหมดแล้ว');
+            if (!savedData) {
+                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลก่อนพิมพ์');
                 return;
             }
 
-            // Prepare all items from all submissions
+            const allSavedData = JSON.parse(savedData);
+            if (allSavedData.length === 0) {
+                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลก่อนพิมพ์');
+                return;
+            }
+
+            // Get the most recent submission (last item in array)
+            const latestData = allSavedData[allSavedData.length - 1];
+            
+            if (!latestData.items || latestData.items.length === 0) {
+                alert('❌ ไม่มีรายการพัสดุในข้อมูลที่บันทึกล่าสุด');
+                return;
+            }
+
+            // Prepare items from the latest submission
             let allItems = [];
             let itemIndex = 1;
             
-            filteredData.forEach(data => {
-                data.items.forEach(item => {
-                    allItems.push({
-                        index: itemIndex++,
-                        description: item.description,
-                        details: item.note || '-',
-                        purpose: item.purpose,
-                        quantity: item.quantity,
-                        unit: item.unit,
-                        submittedBy: data.fullName,
-                        department: data.department
-                    });
+            latestData.items.forEach(item => {
+                allItems.push({
+                    index: itemIndex++,
+                    description: item.description,
+                    details: item.note || '-',
+                    purpose: item.purpose,
+                    quantity: item.quantity,
+                    unit: item.unit
                 });
             });
 
@@ -2606,12 +2630,12 @@
                         <h1>รายละเอียดงานจัดซื้อจัดจ้าง</h1>
                         <p>ประจำปีงบประมาณ พ.ศ. 2569</p>
                         <p>คณะมนุษยศาสตร์และสังคมศาสตร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี</p>
-                        <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH')} | เงื่อนไข: ${getFilterInfo()}</p>
+                        <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH')}</p>
                     </div>
 
                     <div class="summary-info">
                         <strong>จำนวนรายการทั้งหมด: ${allItems.length} รายการ</strong> | 
-                        <strong>จำนวนผู้ส่ง: ${filteredData.length} คน</strong>
+                        <strong>ผู้ส่ง: ${latestData.fullName} (${latestData.department})</strong>
                     </div>
 
                     <table class="items-table">
@@ -2642,13 +2666,11 @@
                     <div class="submitter-info">
                         <div class="submitter-title">ผู้กำหนดรายละเอียด</div>
                         <div class="submitter-grid">
-                            ${filteredData.map((data, index) => `
-                                <div class="submitter-item">
-                                    <strong>${index + 1}. ${data.fullName}</strong><br>
-                                    ${data.department}<br>
-                                    <small>ส่งเมื่อ: ${new Date(data.submitDate).toLocaleDateString('th-TH')}</small>
-                                </div>
-                            `).join('')}
+                            <div class="submitter-item">
+                                <strong>${latestData.fullName}</strong><br>
+                                ${latestData.department}<br>
+                                <small>บันทึกเมื่อ: ${new Date(latestData.submitDate).toLocaleDateString('th-TH')}</small>
+                            </div>
                         </div>
                     </div>
 
@@ -2901,6 +2923,25 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Function to check if print details button should be enabled
+        function checkPrintDetailsButtonState() {
+            const printDetailsBtn = document.getElementById('printDetailsBtn');
+            if (printDetailsBtn) {
+                const savedData = localStorage.getItem('surveyData');
+                if (savedData) {
+                    const allSavedData = JSON.parse(savedData);
+                    if (allSavedData.length > 0) {
+                        printDetailsBtn.disabled = false;
+                    }
+                }
+            }
+        }
+        
+        // Check button state when page loads
+        window.addEventListener('load', checkPrintDetailsButtonState);
+    </script>
 
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9878565692c0893d',t:'MTc1OTI4MzcyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

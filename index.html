@@ -461,9 +461,6 @@
                             <button type="button" onclick="printCurrentSurvey()" class="print-button text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg">
                                 🖨️ พิมพ์แบบสำรวจ
                             </button>
-                            <button type="button" onclick="printItemDetails()" id="printDetailsBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed" title="พิมพ์รายละเอียดพัสดุจากข้อมูลที่บันทึกล่าสุด" disabled>
-                                📋 พิมพ์รายละเอียดพัสดุ
-                            </button>
                         </div>
                     </div>
                 </form>
@@ -1243,23 +1240,11 @@
             syncSurveyDataToFirebase(surveyData).then(() => {
                 console.log('✅ Survey data synced to Firebase successfully');
                 
-                // Enable print details button after successful save
-                const printDetailsBtn = document.getElementById('printDetailsBtn');
-                if (printDetailsBtn) {
-                    printDetailsBtn.disabled = false;
-                }
-                
-                alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: สำเร็จ\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" หรือ "📋 พิมพ์รายละเอียดพัสดุ" เพื่อพิมพ์เอกสารได้');
+                alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: สำเร็จ\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" เพื่อพิมพ์เอกสารได้');
             }).catch((error) => {
                 console.error('❌ Failed to sync survey data to Firebase:', error);
                 
-                // Enable print details button even if Firebase fails (data is still saved locally)
-                const printDetailsBtn = document.getElementById('printDetailsBtn');
-                if (printDetailsBtn) {
-                    printDetailsBtn.disabled = false;
-                }
-                
-                alert('⚠️ บันทึกข้อมูลในเครื่องเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: ล้มเหลว (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" หรือ "📋 พิมพ์รายละเอียดพัสดุ" เพื่อพิมพ์เอกสารได้');
+                alert('⚠️ บันทึกข้อมูลในเครื่องเรียบร้อยแล้ว!\n📊 บันทึกในเครื่อง: สำเร็จ\n☁️ ซิงค์ Firebase: ล้มเหลว (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)\n💰 หักงบประมาณ: ' + totalBudget.toLocaleString('th-TH') + ' บาท\n\n💡 สามารถกดปุ่ม "🖨️ พิมพ์แบบสำรวจ" เพื่อพิมพ์เอกสารได้');
             });
         });
 
@@ -2184,7 +2169,7 @@
                             <div style="text-align: center;">
                                 <div class="info-label">ลงชื่อ</div>
                                 <div style="border-bottom: 1px solid #333; width: 250px; height: 40px; margin: 10px auto;"></div>
-                                <div style="font-size: 12px;">(นางสาวจุรีภร์ เนียมสมบัติ)</div>
+                                <div style="font-size: 12px;">(นางสาวจุรีภรณ์ เนียมสมบัติ)</div>
                                 <div style="font-size: 12px; margin-top: 5px;">หัวหน้าสำนักงานคณบดี</div>
                                 <div style="margin-top: 15px;">
                                     <span style="margin-right: 30px;">วันที่ ......../......../............</span>
@@ -2489,261 +2474,6 @@
             printWindow.document.close();
             printWindow.focus();
         }
-
-        function printItemDetails() {
-            // Get the most recently saved data from localStorage (for current survey page only)
-            const savedData = localStorage.getItem('surveyData');
-            
-            if (!savedData) {
-                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลในหน้านี้ก่อนพิมพ์');
-                return;
-            }
-
-            const allSavedData = JSON.parse(savedData);
-            if (allSavedData.length === 0) {
-                alert('❌ ไม่มีข้อมูลที่บันทึกแล้ว กรุณาบันทึกข้อมูลในหน้านี้ก่อนพิมพ์');
-                return;
-            }
-
-            // Get the most recent submission (last item in array)
-            const latestData = allSavedData[allSavedData.length - 1];
-            
-            if (!latestData.items || latestData.items.length === 0) {
-                alert('❌ ไม่มีรายการพัสดุในข้อมูลที่บันทึกล่าสุด');
-                return;
-            }
-
-            // Prepare items from the latest submission only
-            let allItems = [];
-            let itemIndex = 1;
-            
-            latestData.items.forEach(item => {
-                allItems.push({
-                    index: itemIndex++,
-                    description: item.description,
-                    details: item.note || '-',
-                    purpose: item.purpose,
-                    quantity: item.quantity,
-                    unit: item.unit
-                });
-            });
-
-            // Create print content for item details
-            const printContent = `
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>รายละเอียดงานจัดซื้อจัดจ้าง ปี 2569</title>
-                    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-                    <style>
-                        @media print {
-                            body { margin: 0; padding: 15mm; }
-                            .no-print { display: none; }
-                            .page-break { page-break-before: always; }
-                            @page {
-                                size: A4 landscape;
-                                margin: 15mm;
-                            }
-                        }
-                        body {
-                            font-family: 'Sarabun', sans-serif;
-                            font-size: 12px;
-                            line-height: 1.4;
-                            color: #333;
-                            max-width: 297mm;
-                            margin: 0 auto;
-                            padding: 15mm;
-                        }
-                        .header {
-                            text-align: center;
-                            margin-bottom: 20px;
-                            border-bottom: 2px solid #7c3aed;
-                            padding-bottom: 15px;
-                        }
-                        .header h1 {
-                            font-size: 18px;
-                            font-weight: bold;
-                            margin: 0 0 5px 0;
-                            color: #6b21a8;
-                        }
-                        .header p {
-                            margin: 2px 0;
-                            font-size: 12px;
-                            color: #64748b;
-                        }
-                        .items-table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin-bottom: 20px;
-                            font-size: 11px;
-                        }
-                        .items-table th, .items-table td {
-                            border: 1px solid #d1d5db;
-                            padding: 8px;
-                            text-align: left;
-                            vertical-align: top;
-                        }
-                        .items-table th {
-                            background-color: #f3f4f6;
-                            font-weight: 600;
-                            text-align: center;
-                            font-size: 12px;
-                        }
-                        .text-center { text-align: center; }
-                        .text-right { text-align: right; }
-                        .submitter-info {
-                            margin-top: 30px;
-                            border: 1px solid #e5e7eb;
-                            border-radius: 8px;
-                            padding: 15px;
-                            background-color: #f9fafb;
-                        }
-                        .submitter-title {
-                            font-weight: bold;
-                            margin-bottom: 15px;
-                            color: #374151;
-                            text-align: center;
-                            font-size: 14px;
-                        }
-                        .submitter-grid {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                            gap: 15px;
-                        }
-                        .submitter-item {
-                            font-size: 11px;
-                            padding: 5px 0;
-                        }
-                        .print-date {
-                            text-align: right;
-                            font-size: 10px;
-                            color: #6b7280;
-                            margin-top: 20px;
-                            border-top: 1px solid #e5e7eb;
-                            padding-top: 10px;
-                        }
-                        .no-print {
-                            margin: 20px 0;
-                            text-align: center;
-                        }
-                        .print-btn {
-                            background-color: #7c3aed;
-                            color: white;
-                            padding: 10px 20px;
-                            border: none;
-                            border-radius: 6px;
-                            font-size: 14px;
-                            cursor: pointer;
-                            margin-right: 10px;
-                        }
-                        .close-btn {
-                            background-color: #6b7280;
-                            color: white;
-                            padding: 10px 20px;
-                            border: none;
-                            border-radius: 6px;
-                            font-size: 14px;
-                            cursor: pointer;
-                        }
-                        .summary-info {
-                            background-color: #f8fafc;
-                            border: 1px solid #e2e8f0;
-                            border-radius: 8px;
-                            padding: 15px;
-                            margin-bottom: 20px;
-                            text-align: center;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>รายละเอียดงานจัดซื้อจัดจ้าง</h1>
-                        <p>ประจำปีงบประมาณ พ.ศ. 2569</p>
-                        <p>คณะมนุษยศาสตร์และสังคมศาสตร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี</p>
-                        <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', {
-                            year: 'numeric',
-                            month: 'long', 
-                            day: 'numeric'
-                        })}</p>
-                    </div>
-
-                    <div class="summary-info">
-                        <strong>จำนวนรายการทั้งหมด: ${allItems.length} รายการ</strong><br>
-                        <strong>ผู้ส่ง: ${latestData.fullName}</strong><br>
-                        <strong>หน่วยงาน: ${latestData.department}</strong><br>
-                        <strong>โครงการ: ${latestData.projectSelection || 'ไม่ระบุ'}</strong>
-                    </div>
-
-                    <table class="items-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 5%;">ลำดับ</th>
-                                <th style="width: 30%;">รายการ</th>
-                                <th style="width: 35%;">รายละเอียดวัสดุ/งานจ้าง</th>
-                                <th style="width: 20%;">วัตถุประสงค์</th>
-                                <th style="width: 5%;">จำนวน</th>
-                                <th style="width: 5%;">หน่วยนับ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${allItems.map(item => {
-                                return `
-                                <tr>
-                                    <td class="text-center">${item.index}</td>
-                                    <td>${item.description}</td>
-                                    <td>${item.details}</td>
-                                    <td class="text-center">${item.purpose}</td>
-                                    <td class="text-center">${item.quantity}</td>
-                                    <td class="text-center">${item.unit}</td>
-                                </tr>`;
-                            }).join('')}
-                        </tbody>
-                    </table>
-
-                    <div class="submitter-info">
-                        <div class="submitter-title">ข้อมูลการส่งแบบสำรวจ</div>
-                        <div class="submitter-grid">
-                            <div class="submitter-item">
-                                <strong>ผู้ส่ง:</strong> ${latestData.fullName}<br>
-                                <strong>หน่วยงาน:</strong> ${latestData.department}<br>
-                                <strong>โครงการ:</strong> ${latestData.projectSelection || 'ไม่ระบุ'}<br>
-                                <strong>ความเร่งด่วน:</strong> ${latestData.urgency || 'ไม่ระบุ'}<br>
-                                <strong>งบประมาณรวม:</strong> ${latestData.totalBudget ? latestData.totalBudget.toLocaleString('th-TH') + ' บาท' : '0 บาท'}<br>
-                                <strong>บันทึกเมื่อ:</strong> ${new Date(latestData.submitDate).toLocaleString('th-TH', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="print-date">
-                        พิมพ์เมื่อ: ${new Date().toLocaleDateString('th-TH', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}
-                    </div>
-
-                    <div class="no-print">
-                        <button class="print-btn" onclick="window.print()">🖨️ พิมพ์</button>
-                        <button class="close-btn" onclick="window.close()">❌ ปิดหน้าต่าง</button>
-                    </div>
-                </body>
-                </html>
-            `;
-
-            // Open print window with A4 landscape size for table
-            const printWindow = window.open('', '', 'width=1123,height=794');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.focus();
-        }
         
         function getCurrentFilteredData() {
             const reportNumber = document.getElementById('filterReportNumber').value.toLowerCase();
@@ -2971,24 +2701,12 @@
     </footer>
 
     <script>
-        // Function to check if print details button should be enabled
-        function checkPrintDetailsButtonState() {
-            const printDetailsBtn = document.getElementById('printDetailsBtn');
-            if (printDetailsBtn) {
-                const savedData = localStorage.getItem('surveyData');
-                if (savedData) {
-                    const allSavedData = JSON.parse(savedData);
-                    if (allSavedData.length > 0) {
-                        printDetailsBtn.disabled = false;
-                    }
-                }
-            }
-        }
         
         // Check button state when page loads
-        window.addEventListener('load', checkPrintDetailsButtonState);
+        window.addEventListener('load', function() {
+            // Page loaded, no special actions needed
+        });
     </script>
 
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9878565692c0893d',t:'MTc1OTI4MzcyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-

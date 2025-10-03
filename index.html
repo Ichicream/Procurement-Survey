@@ -99,6 +99,23 @@
             transform: rotate(180deg);
         }
 
+        /* Status button styles */
+        .status-button {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        
+        .status-button:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .status-button:active {
+            transform: translateY(0);
+        }
+
         .step-card {
             background: white;
             border: 2px solid #e5e7eb;
@@ -229,13 +246,13 @@
         <div class="flex bg-white rounded-lg shadow-md p-2 mb-6">
             <button class="tab-button active flex-1 py-3 px-6 rounded-md font-medium transition-all duration-200 hover:bg-blue-50" onclick="switchTab('survey')">
                 📝 แบบสำรวจ
-            </button>
-            <button class="tab-button flex-1 py-3 px-6 rounded-md font-medium transition-all duration-200 hover:bg-blue-50" onclick="switchTab('report')">
-                📊 รายงานข้อมูล
-            </button>
+
+            <button class="tab-button flex-1 py-3 px-6 rounded-md font-medium transition-all duration-200 hover:bg-blue-50" onclick="switchTab('tracking')">
+                📊 รายงาน
+
             <button class="tab-button flex-1 py-3 px-6 rounded-md font-medium transition-all duration-200 hover:bg-blue-50" onclick="switchTab('manual')">
                 📖 คู่มือการใช้งาน
-            </button>
+
         </div>
 
         <!-- Firebase Status Indicator -->
@@ -346,7 +363,7 @@
                             </h2>
                             <button type="button" onclick="addItem()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                                 ➕ เพิ่มรายการ
-                            </button>
+
                         </div>
 
                         <!-- เลือกโครงการและแนบเอกสาร -->
@@ -380,9 +397,9 @@
                                     <label class="block text-gray-700 font-medium mb-2">ประเภทการจัดหา *</label>
                                     <select id="procurementType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="updateProcurementItems()" required>
                                         <option value="">เลือกประเภทการจัดหา</option>
-                                        <option value="ซื้อ">🛒 ซื้อ</option>
-                                        <option value="จ้าง">🤝 จ้าง</option>
-                                        <option value="เช่า">🏠 เช่า</option>
+                                        <option value="ซื้อ">ซื้อ</option>
+                                        <option value="จ้าง">จ้าง</option>
+                                        <option value="เช่า">เช่า</option>
                                     </select>
                                 </div>
                                 
@@ -480,13 +497,13 @@
                         <div class="button-container flex justify-center space-x-4">
                             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
                                 💾 บันทึกข้อมูล
-                            </button>
+
                             <button type="button" onclick="printCurrentSurvey()" class="print-button text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg">
                                 🖨️ พิมพ์แบบสำรวจ
-                            </button>
+
                             <button type="button" onclick="printJobDetails()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
                                 📋 พิมพ์รายละเอียดงาน
-                            </button>
+
                         </div>
                     </div>
                 </form>
@@ -501,10 +518,10 @@
                     <div class="flex space-x-3">
                         <button onclick="updateReport()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
                             🔄 รีเฟรชข้อมูล
-                        </button>
+
                         <button onclick="printReport()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
                             �️ พิมพ์รายงาน
-                        </button>
+
                     </div>
                 </div>
 
@@ -577,7 +594,7 @@
                     <div class="flex justify-between items-center mt-4">
                         <button onclick="clearFilters()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                             🗑️ ล้างตัวกรอง
-                        </button>
+
                         <div id="filterResults" class="text-sm text-gray-600">
                             <!-- Results count will be shown here -->
                         </div>
@@ -586,6 +603,119 @@
 
                 <div id="reportContent">
                     <p class="text-gray-500 text-center py-8">ยังไม่มีข้อมูลการสำรวจ กรุณากรอกแบบสำรวจก่อน</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Procurement Tracking Tab -->
+        <div id="tracking" class="tab-content">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">📊 รายงานการดำเนินการจัดซื้อจัดจ้าง</h2>
+                </div>
+
+                <!-- Charts Section - 2 Columns -->
+                <div class="mb-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        
+                        <!-- Left Column: Department Chart -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">🏢 สัดส่วนตามฝ่าย/หน่วยงาน</h3>
+                            <div class="flex items-start gap-6">
+                                <!-- Chart Canvas -->
+                                <div class="flex-shrink-0">
+                                    <div style="position: relative; height: 200px; width: 200px;">
+                                        <canvas id="departmentStatusChart"></canvas>
+                                    </div>
+                                </div>
+                                <!-- Chart Legend -->
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">รายละเอียดตามฝ่าย</h4>
+                                    <div id="departmentStatusLegend" class="space-y-2 max-h-48 overflow-y-auto">
+                                        <!-- Legend will be populated by JavaScript -->
+                                    </div>
+                                    <div class="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                                        <div class="text-xs text-gray-600">
+                                            <div class="flex justify-between mb-1">
+                                                <span class="font-medium">จำนวนฝ่าย/หน่วยงาน:</span>
+                                                <span id="totalDepartments" class="font-bold text-blue-600">0 ฝ่าย</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="font-medium">งบประมาณรวมทุกฝ่าย:</span>
+                                                <span id="totalDepartmentBudget" class="font-bold text-blue-600">0 บาท</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Status Chart -->
+                        <div class="bg-white border border-gray-200 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">📊 สัดส่วนสถานะการดำเนินการ</h3>
+                            <div class="flex items-start gap-6">
+                                <!-- Chart Canvas -->
+                                <div class="flex-shrink-0">
+                                    <div style="position: relative; height: 200px; width: 200px;">
+                                        <canvas id="trackingStatusChart"></canvas>
+                                    </div>
+                                </div>
+                                <!-- Chart Legend -->
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">รายละเอียดสถานะ</h4>
+                                    <div id="trackingStatusLegend" class="space-y-2">
+                                        <!-- Legend will be populated by JavaScript -->
+                                    </div>
+                                    <div class="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                                        <div class="text-xs text-gray-600">
+                                            <div class="flex justify-between mb-1">
+                                                <span class="font-medium">รวมทั้งหมด:</span>
+                                                <span id="totalTrackingItems" class="font-bold text-green-600">0 รายการ</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="font-medium">งบประมาณรวม:</span>
+                                                <span id="totalTrackingBudget" class="font-bold text-green-600">0 บาท</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Tracking Table -->
+                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">📋 รายการติดตามการดำเนินการ</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ความเร่งด่วน</th>
+                                    <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-48">โครงการ</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ขอ</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">พัสดุ</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">งบประมาณ</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่อัปเดต</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trackingTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Tracking data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noTrackingData" class="text-center py-12 text-gray-500 hidden">
+                        <div class="text-4xl mb-4">📋</div>
+                        <p class="text-lg font-medium">ไม่มีข้อมูลการติดตาม</p>
+                        <p class="text-sm">กรุณาบันทึกแบบสำรวจก่อนเพื่อเริ่มติดตามการดำเนินการ</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -861,6 +991,11 @@
             return saveToFirebase(budgets, 'projectBudgets');
         }
 
+        function saveSurveyToFirebase(surveyItem) {
+            // Save individual survey item
+            return saveToFirebase(surveyItem, `surveyData/${surveyItem.id}`);
+        }
+
         function loadSurveyDataFromFirebase() {
             return loadFromFirebase('surveyData');
         }
@@ -1075,8 +1210,8 @@
             // Add active class to clicked button
             event.target.classList.add('active');
             
-            if (tabName === 'report') {
-                await updateReport();
+            if (tabName === 'tracking') {
+                loadTrackingData();
             }
         }
 
@@ -1114,7 +1249,7 @@
                 <td class="border border-gray-300 px-3 py-2 text-center">
                     <button type="button" onclick="removeItem(this)" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
                         🗑️
-                    </button>
+
                 </td>
             `;
             tableBody.appendChild(row);
@@ -1224,59 +1359,59 @@
             // Define procurement items by type
             const procurementItems = {
                 'ซื้อ': [
-                    '📱 วัสดุสำนักงาน',
-                    '💻 วัสดุคอมพิวเตอร์',
-                    '📚 วัสดุการศึกษา',
-                    '🔧 เครื่องมือและอุปกรณ์',
-                    '🏠 วัสดุก่อสร้าง',
-                    '🚗 วัสดุยานพาหนะ',
-                    '⚡ วัสดุไฟฟ้า',
-                    '📡 วัสดุโทรคมนาคม',
-                    '🧪 วัสดุวิทยาศาสตร์',
-                    '🏥 วัสดุการแพทย์',
-                    '🍽️ วัสดุครัว',
-                    '🧹 วัสดุทำความสะอาด',
-                    '�️ ครุภัณฑ์คอมพิวเตอร์',
-                    '🪑 ครุภัณฑ์สำนักงาน',
-                    '📹 ครุภัณฑ์โสตทัศนูปกรณ์',
-                    '🔬 ครุภัณฑ์วิทยาศาสตร์',
-                    '🏥 ครุภัณฑ์การแพทย์',
-                    '🚗 ครุภัณฑ์ยานพาหนะ',
-                    '🏗️ ครุภัณฑ์ก่อสร้าง',
-                    '🍽️ ครุภัณฑ์ครัว',
-                    '💡 ครุภัณฑ์ไฟฟ้า',
-                    '🎵 ครุภัณฑ์ดนตรี',
-                    '🏃 ครุภัณฑ์กีฬา',
-                    '�📦 วัสดุอื่นๆ'
+                    'วัสดุสำนักงาน',
+                    'อุปกรณ์คอมพิวเตอร์',
+                    'วัสดุการศึกษา',
+                    'เครื่องมือและอุปกรณ์',
+                    'วัสดุก่อสร้าง',
+                    'วัสดุยานพาหนะ',
+                    'วัสดุไฟฟ้า',
+                    'วัสดุโทรคมนาคม',
+                    'วัสดุวิทยาศาสตร์',
+                    'วัสดุการแพทย์',
+                    'วัสดุครัว',
+                    'วัสดุทำความสะอาด',
+                    'ครุภัณฑ์คอมพิวเตอร์',
+                    'ครุภัณฑ์สำนักงาน',
+                    'ครุภัณฑ์โสตทัศนูปกรณ์',
+                    'ครุภัณฑ์วิทยาศาสตร์',
+                    'ครุภัณฑ์การแพทย์',
+                    'ครุภัณฑ์ยานพาหนะ',
+                    'ครุภัณฑ์ก่อสร้าง',
+                    'ครุภัณฑ์ครัว',
+                    'ครุภัณฑ์ไฟฟ้า',
+                    'ครุภัณฑ์ดนตรี',
+                    'ครุภัณฑ์กีฬา',
+                    'วัสดุอื่นๆ'
                 ],
                 'จ้าง': [
-                    '🔨 งานก่อสร้าง',
-                    '🎨 งานออกแบบ',
-                    '💼 งานที่ปรึกษา',
-                    '📊 งานวิจัย',
-                    '🏫 งานฝึกอบรม',
-                    '📸 งานสื่อและประชาสัมพันธ์',
-                    '🖥️ งานพัฒนาระบบ',
-                    '🔧 งานซ่อมบำรุง',
-                    '🚛 งานขนส่ง',
-                    '🛡️ งานรักษาความปลอดภัย',
-                    '🧹 งานทำความสะอาด',
-                    '🌳 งานดูแลภูมิทัศน์',
-                    '🛠️ งานจ้างทำครุภัณฑ์',
-                    '📋 งานอื่นๆ'
+                    'งานก่อสร้าง',
+                    'งานออกแบบ',
+                    'งานที่ปรึกษา',
+                    'งานวิจัย',
+                    'งานฝึกอบรม',
+                    'งานสื่อและประชาสัมพันธ์',
+                    'งานพัฒนาระบบ',
+                    'งานซ่อมบำรุง',
+                    'งานขนส่ง',
+                    'งานรักษาความปลอดภัย',
+                    'งานทำความสะอาด',
+                    'งานดูแลภูมิทัศน์',
+                    'งานจ้างทำครุภัณฑ์',
+                    'งานอื่นๆ'
                 ],
                 'เช่า': [
-                    '🏢 เช่าสถานที่',
-                    '🚗 เช่ายานพาหนะ',
-                    '💻 เช่าอุปกรณ์คอมพิวเตอร์',
-                    '🎵 เช่าอุปกรณ์เสียง',
-                    '📹 เช่าอุปกรณ์โสตทัศนูปกรณ์',
-                    '🏗️ เช่าเครื่องจักร',
-                    '🪑 เช่าเฟอร์นิเจอร์',
-                    '🎪 เช่าอุปกรณ์งานจัดงาน',
-                    '📱 เช่าอุปกรณ์โทรคมนาคม',
-                    '🏥 เช่าอุปกรณ์การแพทย์',
-                    '📦 เช่าอื่นๆ'
+                    'เช่าสถานที่',
+                    'เช่ายานพาหนะ',
+                    'เช่าอุปกรณ์คอมพิวเตอร์',
+                    'เช่าอุปกรณ์เสียง',
+                    'เช่าอุปกรณ์โสตทัศนูปกรณ์',
+                    'เช่าเครื่องจักร',
+                    'เช่าเฟอร์นิเจอร์',
+                    'เช่าอุปกรณ์งานจัดงาน',
+                    'เช่าอุปกรณ์โทรคมนาคม',
+                    'เช่าอุปกรณ์การแพทย์',
+                    'เช่าอื่นๆ'
                 ]
             };
             
@@ -1643,8 +1778,8 @@
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h3 class="text-lg font-bold text-gray-800">รายงานที่ ${originalIndex + 1}</h3>
-                                <p class="text-gray-600">ผู้ส่งแบบสำรวจ: ${data.fullName}</p>
-                                <p class="text-gray-600">หน่วยงาน: ${data.department}</p>
+                                <p class="text-gray-600">ผู้ส่งแบบสำรวจ: ${data.fullName || '-'}</p>
+                                <p class="text-gray-600">หน่วยงาน: ${data.department || '-'}</p>
                                 <p class="text-gray-600">โครงการ: ${data.projectSelection || '-'}</p>
                                 <p class="text-gray-600">ประเภทการจัดหา: ${data.procurementType || '-'}</p>
                                 <p class="text-gray-600">พัสดุที่จัดหา: ${data.procurementItem || '-'}</p>
@@ -1654,10 +1789,10 @@
                             <div class="flex space-x-2">
                                 <button onclick="requestEditPassword(${originalIndex})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm">
                                     ✏️ แก้ไข
-                                </button>
+
                                 <button onclick="requestDeletePassword(${originalIndex})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
                                     🗑️ ลบ
-                                </button>
+
                             </div>
                         </div>
                         
@@ -1679,12 +1814,12 @@
                 data.items.forEach(item => {
                     html += `
                         <tr>
-                            <td class="border border-gray-300 px-2 py-2 text-center">${item.no}</td>
-                            <td class="border border-gray-300 px-2 py-2">${item.description}</td>
-                            <td class="border border-gray-300 px-2 py-2">${item.note}</td>
-                            <td class="border border-gray-300 px-2 py-2">${item.purpose}</td>
-                            <td class="border border-gray-300 px-2 py-2 text-center">${item.quantity} ${item.unit}</td>
-                            <td class="border border-gray-300 px-2 py-2 text-right">${item.total.toLocaleString('th-TH')} บาท</td>
+                            <td class="border border-gray-300 px-2 py-2 text-center">${item.no || '-'}</td>
+                            <td class="border border-gray-300 px-2 py-2">${item.description || '-'}</td>
+                            <td class="border border-gray-300 px-2 py-2">${item.note || '-'}</td>
+                            <td class="border border-gray-300 px-2 py-2">${item.purpose || '-'}</td>
+                            <td class="border border-gray-300 px-2 py-2 text-center">${item.quantity || '-'} ${item.unit || ''}</td>
+                            <td class="border border-gray-300 px-2 py-2 text-right">${item.total ? item.total.toLocaleString('th-TH') : '0'} บาท</td>
                         </tr>
                     `;
                 });
@@ -1785,7 +1920,7 @@
                 return;
             }
             
-            if (password === '1234') {
+            if (password === '01234') {
                 // Correct password
                 editSurvey(index);
             } else {
@@ -1803,12 +1938,12 @@
                 return;
             }
             
-            if (password === '1234') {
+            if (password === '01234') {
                 // Correct password - show confirmation dialog
                 const confirmation = confirm(
                     `⚠️ ยืนยันการลบข้อมูล?\n\n` +
-                    `📄 รายงานของ: ${data.fullName}\n` +
-                    `🏢 หน่วยงาน: ${data.department}\n` +
+                    `📄 รายงานของ: ${data.fullName || '-'}\n` +
+                    `🏢 หน่วยงาน: ${data.department || '-'}\n` +
                     `💰 งบประมาณ: ${data.totalBudget.toLocaleString('th-TH')} บาท\n\n` +
                     `🚨 การลบไม่สามารถย้อนกลับได้!`
                 );
@@ -2125,24 +2260,24 @@
                         <div class="info-grid">
                             <div class="info-item">
                                 <div class="info-label">ชื่อ-สกุล ผู้ตอบแบบสำรวจ:</div>
-                                <div class="info-value">${fullName}</div>
+                                <div class="info-value">${fullName || '-'}</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">หน่วยงาน/ฝ่าย:</div>
-                                <div class="info-value">${department}</div>
+                                <div class="info-value">${department || '-'}</div>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">โครงการ:</div>
-                            <div class="info-value">${projectSelection}</div>
+                            <div class="info-value">${projectSelection || '-'}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">ประเภทการจัดหา:</div>
-                            <div class="info-value">${procurementType}</div>
+                            <div class="info-value">${procurementType || '-'}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">พัสดุที่จัดหา:</div>
-                            <div class="info-value">${procurementItem}</div>
+                            <div class="info-value">${procurementItem || '-'}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">วันที่กรอกข้อมูล:</div>
@@ -2180,14 +2315,14 @@
                             <tbody>
                                 ${items.map(item => `
                                     <tr>
-                                        <td class="text-center">${item.no}</td>
-                                        <td>${item.description}</td>
-                                        <td>${item.note}</td>
-                                        <td class="text-center">${item.purpose}</td>
-                                        <td class="text-center">${item.quantity.toLocaleString('th-TH')}</td>
-                                        <td class="text-center">${item.unit}</td>
-                                        <td class="text-right">${item.unitPrice.toLocaleString('th-TH')}</td>
-                                        <td class="text-right">${item.total.toLocaleString('th-TH')}</td>
+                                        <td class="text-center">${item.no || '-'}</td>
+                                        <td>${item.description || '-'}</td>
+                                        <td>${item.note || '-'}</td>
+                                        <td class="text-center">${item.purpose || '-'}</td>
+                                        <td class="text-center">${item.quantity ? item.quantity.toLocaleString('th-TH') : '0'}</td>
+                                        <td class="text-center">${item.unit || '-'}</td>
+                                        <td class="text-right">${item.unitPrice ? item.unitPrice.toLocaleString('th-TH') : '0'}</td>
+                                        <td class="text-right">${item.total ? item.total.toLocaleString('th-TH') : '0'}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -2308,7 +2443,8 @@
                             </div>
                         </div>
 
-                        <!-- หัวหน้าสำนักงานคณบดี -->
+                        <!-- หัวหน้าสำนักง
+                            านคณบดี -->
                         <div class="approval-section" style="margin-bottom: 25px; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px;">
                             <div class="info-label" style="margin-bottom: 15px;">ความเห็นของหัวหน้าสำนักงานคณบดี:</div>
                             
@@ -2552,7 +2688,7 @@
                         </div>
                         <div class="info-row">
                             <div class="info-label">ผู้กำหนดรายละเอียด:</div>
-                            <div class="info-value">${fullName} (${department})</div>
+                            <div class="info-value">${fullName || '-'} (${department || '-'})</div>
                         </div>
                     </div>
 
@@ -2570,11 +2706,11 @@
                         <tbody>
                             ${items.map(item => `
                                 <tr>
-                                    <td class="text-center">${item.no}</td>
-                                    <td>${item.description}</td>
+                                    <td class="text-center">${item.no || '-'}</td>
+                                    <td>${item.description || '-'}</td>
                                     <td>${item.note || '-'}</td>
                                     <td class="text-center">${item.purpose || '-'}</td>
-                                    <td class="text-center">${item.quantity}</td>
+                                    <td class="text-center">${item.quantity || '0'}</td>
                                     <td class="text-center">${item.unit || '-'}</td>
                                 </tr>
                             `).join('')}
@@ -2820,7 +2956,7 @@
                         <div class="summary-title">รายละเอียดข้อมูล</div>
                         ${filteredData.map((data, index) => `
                             <div class="detail-section">
-                                <div class="detail-header">${index + 1}. ${data.fullName} (${data.department})</div>
+                                <div class="detail-header">${index + 1}. ${data.fullName || '-'} (${data.department || '-'})</div>
                                 <div class="detail-info">โครงการ: ${data.projectSelection || '-'}</div>
                                 <div class="detail-info">ประเภทการจัดหา: ${data.procurementType || '-'}</div>
                                 <div class="detail-info">พัสดุที่จัดหา: ${data.procurementItem || '-'}</div>
@@ -2839,10 +2975,10 @@
                                     <tbody>
                                         ${data.items.map(item => `
                                             <tr>
-                                                <td>${item.description}</td>
-                                                <td class="text-center">${item.purpose}</td>
-                                                <td class="text-center">${item.quantity} ${item.unit}</td>
-                                                <td class="text-right">${item.total.toLocaleString('th-TH')} บาท</td>
+                                                <td>${item.description || '-'}</td>
+                                                <td class="text-center">${item.purpose || '-'}</td>
+                                                <td class="text-center">${item.quantity || '0'} ${item.unit || ''}</td>
+                                                <td class="text-right">${item.total ? item.total.toLocaleString('th-TH') : '0'} บาท</td>
                                             </tr>
                                         `).join('')}
                                         <tr class="total-row">
@@ -3029,6 +3165,1137 @@
             updateBudgetDisplay();
             console.log('🎉 Application initialized with Firebase sync');
         });
+
+        // Procurement Tracking Functions
+        let trackingData = [];
+        let currentTrackingFilter = 'all';
+        let trackingStatusChart = null;
+        let departmentStatusChart = null;
+
+        // Load tracking data from surveys
+        function loadTrackingData() {
+            console.log('loadTrackingData called, surveyData length:', surveyData.length);
+            trackingData = surveyData.map(survey => ({
+                ...survey,
+                trackingStatus: survey.trackingStatus || 'pending_budget_approval',
+                lastUpdated: survey.lastUpdated || survey.submitDate,
+                notes: survey.trackingNotes || ''
+            }));
+            console.log('trackingData after mapping:', trackingData.length);
+            updateTrackingDisplay();
+            updateTrackingSummary();
+        }
+
+        // Update tracking status for a specific survey
+        function updateTrackingStatus(surveyId, newStatus, notes = '') {
+            const surveyIndex = surveyData.findIndex(survey => survey.id === surveyId);
+            if (surveyIndex !== -1) {
+                surveyData[surveyIndex].trackingStatus = newStatus;
+                surveyData[surveyIndex].lastUpdated = new Date().toISOString();
+                surveyData[surveyIndex].trackingNotes = notes;
+                
+                // Save to localStorage and Firebase
+                localStorage.setItem('surveyData', JSON.stringify(surveyData));
+                saveSurveyToFirebase(surveyData[surveyIndex]);
+                
+                // Reload tracking data
+                loadTrackingData();
+            }
+        }
+
+        // Filter tracking data by status
+        function filterByStatus(status) {
+            currentTrackingFilter = status;
+            updateTrackingDisplay();
+        }
+
+        // Update tracking display table
+        function updateTrackingDisplay() {
+            const tableBody = document.getElementById('trackingTableBody');
+            const noDataDiv = document.getElementById('noTrackingData');
+            
+            let filteredData = trackingData;
+            if (currentTrackingFilter !== 'all') {
+                filteredData = trackingData.filter(item => item.trackingStatus === currentTrackingFilter);
+            }
+            
+            if (filteredData.length === 0) {
+                tableBody.innerHTML = '';
+                noDataDiv.classList.remove('hidden');
+                return;
+            }
+            
+            noDataDiv.classList.add('hidden');
+            
+            tableBody.innerHTML = filteredData.map((item, index) => {
+                const statusInfo = getStatusInfo(item.trackingStatus);
+                const totalBudget = item.totalBudget || 0;
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-4 text-center text-sm font-medium text-gray-900">${index + 1}</td>
+                        <td class="px-4 py-4 text-center">
+                            ${getUrgencyBadge(item.urgency)}
+                        </td>
+                        <td class="px-2 py-4 w-48">
+                            <div class="text-xs font-medium text-gray-900 leading-tight">${item.projectSelection || '-'}</div>
+                            <div class="text-xs text-gray-500 leading-tight">${item.procurementType || ''} - ${item.procurementItem || ''}</div>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="text-sm font-medium text-gray-900">${item.fullName || '-'}</div>
+                            <div class="text-sm text-gray-500">${item.department || '-'}</div>
+                        </td>
+                        <td class="px-4 py-4 text-sm text-gray-900">${item.procurementType || '-'}</td>
+                        <td class="px-4 py-4 text-sm text-gray-900">${item.procurementItem || '-'}</td>
+                        <td class="px-4 py-4 text-sm font-medium text-gray-900">${totalBudget.toLocaleString('th-TH')} บาท</td>
+                        <td class="px-4 py-4 text-sm text-gray-500">
+                            ${new Date(item.lastUpdated).toLocaleDateString('th-TH')}
+                        </td>
+                        <td class="px-4 py-4">
+                            <select onchange="requestStatusUpdatePassword('${item.id}', this.value)" class="text-xs px-2 py-1 rounded border border-gray-300 ${statusInfo.bgColor} ${statusInfo.textColor} cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500" title="เลือกสถานะ">
+                                <option value="pending_budget_approval" ${item.trackingStatus === 'pending_budget_approval' ? 'selected' : ''}>อยู่ระหว่างการขออนุมัติงบ</option>
+                                <option value="budget_approved" ${item.trackingStatus === 'budget_approved' ? 'selected' : ''}>อนุมัติงบประมาณแล้ว</option>
+                                <option value="procurement_process" ${item.trackingStatus === 'procurement_process' ? 'selected' : ''}>อยู่ระหว่างการจัดซื้อจัดจ้าง</option>
+                                <option value="procurement_completed" ${item.trackingStatus === 'procurement_completed' ? 'selected' : ''}>จัดซื้อจัดจ้างเสร็จแล้ว</option>
+                                <option value="payment_completed" ${item.trackingStatus === 'payment_completed' ? 'selected' : ''}>เบิกจ่ายเงินแล้ว</option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="flex flex-wrap gap-1">
+                                <button onclick="viewDetails(${surveyData.findIndex(s => s.id === item.id)})" class="text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded transition-colors" title="ดูรายละเอียด">
+                                    รายละเอียด
+                                </button>
+                                <button onclick="requestTrackingEditPassword(${surveyData.findIndex(s => s.id === item.id)})" class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded transition-colors" title="แก้ไขแบบสำรวจ">
+                                    แก้ไข
+                                </button>
+                                <button onclick="requestTrackingDeletePassword(${surveyData.findIndex(s => s.id === item.id)})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded transition-colors" title="ลบแบบสำรวจ">
+                                    ลบ
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Get status information for display
+        function getStatusInfo(status) {
+            const statusMap = {
+                'pending_budget_approval': { text: 'อยู่ระหว่างการขออนุมัติงบ', class: 'bg-yellow-100 text-yellow-800', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+                'budget_approved': {text: 'อนุมัติงบประมาณแล้ว', class: 'bg-green-100 text-green-800', bgColor: 'bg-green-50', textColor: 'text-green-700' },
+                'procurement_process': {text: 'อยู่ระหว่างการจัดซื้อจัดจ้าง', class: 'bg-blue-100 text-blue-800', bgColor: 'bg-blue-50', textColor: 'text-blue-700' },
+                'procurement_completed': {text: 'จัดซื้อจัดจ้างเสร็จแล้ว', class: 'bg-purple-100 text-purple-800', bgColor: 'bg-purple-50', textColor: 'text-purple-700' },
+                'payment_completed': {text: 'เบิกจ่ายเงินแล้ว', class: 'bg-orange-100 text-orange-800', bgColor: 'bg-orange-50', textColor: 'text-orange-700' }
+            };
+            return statusMap[status] || statusMap['pending_budget_approval'];
+        }
+
+        // Get urgency badge for display
+        function getUrgencyBadge(urgency) {
+            const urgencyMap = {
+                'เร่งด่วนมาก': {
+                    text: 'เร่งด่วนมาก',
+                    class: 'bg-red-100 text-red-800 border border-red-200',
+                    icon: '🔥'
+                },
+                'เร่งด่วน': {
+                    text: 'เร่งด่วน',
+                    class: 'bg-orange-100 text-orange-800 border border-orange-200',
+                    icon: '⚡'
+                },
+                'ปานกลาง': {
+                    text: 'ปานกลาง',
+                    class: 'bg-blue-100 text-blue-800 border border-blue-200',
+                    icon: '🟦'
+                },
+                'ไม่เร่งด่วน': {
+                    text: 'ไม่เร่งด่วน',
+                    class: 'bg-gray-100 text-gray-800 border border-gray-200',
+                    icon: '🟨'
+                }
+            };
+            
+            const info = urgencyMap[urgency] || urgencyMap['ปานกลาง'];
+            
+            return `
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${info.class}">
+                    ${info.icon} ${info.text}
+                </span>
+            `;
+        }
+
+        // Update tracking summary cards
+        function updateTrackingSummary() {
+            // Update tracking status chart
+            updateTrackingStatusChart();
+            updateDepartmentStatusChart();
+        }
+
+        // Refresh tracking data
+        function refreshTrackingData() {
+            loadTrackingData();
+            alert('🔄 ข้อมูลการติดตามได้รับการอัปเดตแล้ว');
+        }
+
+        // Update tracking status chart
+        function updateTrackingStatusChart() {
+            console.log('updateTrackingStatusChart called, trackingData length:', trackingData.length);
+            
+            if (trackingData.length === 0) {
+                // Hide chart if no data
+                if (trackingStatusChart) {
+                    trackingStatusChart.destroy();
+                    trackingStatusChart = null;
+                }
+                const legendElement = document.getElementById('trackingStatusLegend');
+                const itemsElement = document.getElementById('totalTrackingItems');
+                const budgetElement = document.getElementById('totalTrackingBudget');
+                
+                if (legendElement) legendElement.innerHTML = '<p class="text-gray-500 text-center">ไม่มีข้อมูลสำหรับแสดงกราฟ</p>';
+                if (itemsElement) itemsElement.textContent = '0 รายการ';
+                if (budgetElement) budgetElement.textContent = '0 บาท';
+                return;
+            }
+
+            // Calculate status distribution
+            const statusCounts = {
+                'pending_budget_approval': 0,
+                'budget_approved': 0,
+                'procurement_process': 0,
+                'procurement_completed': 0,
+                'payment_completed': 0
+            };
+            
+            let totalBudget = 0;
+            
+            trackingData.forEach(item => {
+                const status = item.trackingStatus || 'budget_approved';
+                if (statusCounts.hasOwnProperty(status)) {
+                    statusCounts[status]++;
+                }
+                totalBudget += item.totalBudget || 0;
+            });
+
+            const labels = [];
+            const data = [];
+            const colors = [];
+            const statusInfo = {
+                'pending_budget_approval': { label: 'อยู่ระหว่างการขออนุมัติงบ', color: '#F59E0B'},
+                'budget_approved': { label: 'อนุมัติงบประมาณแล้ว', color: '#10B981'},
+                'procurement_process': { label: 'อยู่ระหว่างการจัดซื้อจัดจ้าง', color: '#3B82F6'},
+                'procurement_completed': { label: 'จัดซื้อจัดจ้างเสร็จแล้ว', color: '#8B5CF6'},
+                'payment_completed': { label: 'เบิกจ่ายเงินแล้ว', color: '#EF4444'}
+            };
+
+            // Prepare data for chart - แสดงทุกสถานะรวมถึงที่มีค่า 0
+            Object.keys(statusCounts).forEach(status => {
+                labels.push(statusInfo[status].label);
+                data.push(statusCounts[status]);
+                colors.push(statusInfo[status].color);
+            });
+
+            // ตรวจสอบว่ามีข้อมูลหรือไม่ (แม้ทุกค่าจะเป็น 0)
+            const hasAnyData = data.some(value => value > 0);
+            
+            if (!hasAnyData) {
+                // ถ้าทุกสถานะเป็น 0 ให้แสดงข้อความแจ้งเตือน
+                if (trackingStatusChart) {
+                    trackingStatusChart.destroy();
+                    trackingStatusChart = null;
+                }
+                const legendElement = document.getElementById('trackingStatusLegend');
+                if (legendElement) legendElement.innerHTML = '<p class="text-gray-500 text-center">ไม่มีข้อมูลสำหรับแสดงกราฟ</p>';
+                return;
+            }
+
+            const canvasElement = document.getElementById('trackingStatusChart');
+            if (!canvasElement) {
+                console.error('Canvas element trackingStatusChart not found');
+                return;
+            }
+            
+            const ctx = canvasElement.getContext('2d');
+            
+            if (trackingStatusChart) {
+                trackingStatusChart.destroy();
+            }
+
+            trackingStatusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                    return `${label}: ${value} รายการ (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // Create custom legend - แสดงทุกสถานะรวมถึงที่มีค่า 0
+            let legendHtml = '';
+            const total = data.reduce((a, b) => a + b, 0);
+            
+            Object.keys(statusCounts).forEach(status => {
+                const count = statusCounts[status];
+                const info = statusInfo[status];
+                const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
+                legendHtml += `
+                    <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100 hover:shadow-sm transition-shadow">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-2 flex-shrink-0" style="background-color: ${info.color}"></div>
+                            <div class="min-w-0">
+                                <div class="text-xs font-medium text-gray-800 truncate">${info.label}</div>
+                                <div class="text-xs text-gray-500">${percentage}% ของทั้งหมด</div>
+                            </div>
+                        </div>
+                        <div class="text-sm font-bold text-gray-900 ml-2">${count}</div>
+                    </div>
+                `;
+            });
+            
+            const legendElement = document.getElementById('trackingStatusLegend');
+            const itemsElement = document.getElementById('totalTrackingItems');
+            const budgetElement = document.getElementById('totalTrackingBudget');
+            
+            if (legendElement) legendElement.innerHTML = legendHtml;
+            if (itemsElement) itemsElement.textContent = `${total} รายการ`;
+            if (budgetElement) budgetElement.textContent = `${totalBudget.toLocaleString('th-TH')} บาท`;
+        }
+
+        // Department status chart function
+        function updateDepartmentStatusChart() {
+            console.log('updateDepartmentStatusChart called, trackingData length:', trackingData.length);
+            
+            if (trackingData.length === 0) {
+                // Hide chart if no data
+                if (departmentStatusChart) {
+                    departmentStatusChart.destroy();
+                    departmentStatusChart = null;
+                }
+                const legendElement = document.getElementById('departmentStatusLegend');
+                const deptElement = document.getElementById('totalDepartments');
+                const budgetElement = document.getElementById('totalDepartmentBudget');
+                
+                if (legendElement) legendElement.innerHTML = '<p class="text-gray-500 text-center">ไม่มีข้อมูลสำหรับแสดงกราฟ</p>';
+                if (deptElement) deptElement.textContent = '0 ฝ่าย';
+                if (budgetElement) budgetElement.textContent = '0 บาท';
+                return;
+            }
+
+            // Calculate department distribution
+            const departmentCounts = {};
+            const departmentBudgets = {};
+            
+            let totalBudget = 0;
+            
+            trackingData.forEach(item => {
+                const department = item.department || 'ไม่ระบุฝ่าย';
+                departmentCounts[department] = (departmentCounts[department] || 0) + 1;
+                departmentBudgets[department] = (departmentBudgets[department] || 0) + (item.totalBudget || 0);
+                totalBudget += item.totalBudget || 0;
+            });
+
+            const labels = Object.keys(departmentCounts);
+            const data = Object.values(departmentCounts);
+            const colors = [
+                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
+                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280',
+                '#14B8A6', '#F472B6', '#A855F7', '#22D3EE', '#FCD34D'
+            ];
+
+            // Limit colors to data length, cycling if needed
+            const chartColors = data.map((_, index) => colors[index % colors.length]);
+
+            const canvasElement = document.getElementById('departmentStatusChart');
+            if (!canvasElement) {
+                console.error('Canvas element departmentStatusChart not found');
+                return;
+            }
+            
+            const ctx = canvasElement.getContext('2d');
+            
+            if (departmentStatusChart) {
+                departmentStatusChart.destroy();
+            }
+
+            departmentStatusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: chartColors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                    const budget = departmentBudgets[label] || 0;
+                                    return `${label}: ${value} รายการ (${percentage}%) - ${budget.toLocaleString('th-TH')} บาท`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // Create custom legend
+            let legendHtml = '';
+            const total = data.reduce((a, b) => a + b, 0);
+            
+            labels.forEach((department, index) => {
+                const count = departmentCounts[department];
+                const budget = departmentBudgets[department];
+                const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : '0.0';
+                const color = chartColors[index];
+                
+                legendHtml += `
+                    <div class="flex items-center justify-between p-2 bg-white rounded-lg border border-gray-100 hover:shadow-sm transition-shadow">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-2 flex-shrink-0" style="background-color: ${color}"></div>
+                            <div class="min-w-0">
+                                <div class="text-xs font-medium text-gray-800 truncate">${department}</div>
+                                <div class="text-xs text-gray-500">${percentage}% - ${budget.toLocaleString('th-TH')} บาท</div>
+                            </div>
+                        </div>
+                        <div class="text-sm font-bold text-gray-900 ml-2">${count}</div>
+                    </div>
+                `;
+            });
+            
+            const legendElement = document.getElementById('departmentStatusLegend');
+            const deptElement = document.getElementById('totalDepartments');
+            const budgetElement = document.getElementById('totalDepartmentBudget');
+            
+            if (legendElement) legendElement.innerHTML = legendHtml;
+            if (deptElement) deptElement.textContent = `${labels.length} ฝ่าย`;
+            if (budgetElement) budgetElement.textContent = `${totalBudget.toLocaleString('th-TH')} บาท`;
+        }
+
+        // Password protection functions for tracking management
+        function requestTrackingEditPassword(index) {
+            const password = prompt('🔒 กรุณากรอกรหัสผ่านเพื่อแก้ไขแบบสำรวจ:', '');
+            
+            if (password === null) {
+                return; // User canceled
+            }
+            
+            if (password === '01234') {
+                editSurvey(index);
+            } else {
+                alert('❌ รหัสผ่านไม่ถูกต้อง!\n🚫 ไม่สามารถแก้ไขข้อมูลได้\n📞 กรุณาติดต่อผู้ดูแลระบบหากต้องการแก้ไขข้อมูล');
+            }
+        }
+
+        function requestTrackingDeletePassword(index) {
+            const data = surveyData[index];
+            const password = prompt('🔒 กรุณากรอกรหัสผ่านเพื่อลบแบบสำรวจ:', '');
+            
+            if (password === null) {
+                return; // User canceled
+            }
+            
+            if (password === '01234') {
+                const confirmation = confirm(
+                    `⚠️ ยืนยันการลบข้อมูล\n\n` +
+                    `👤 ผู้ส่ง: ${data.fullName || '-'}\n` +
+                    `🏢 หน่วยงาน: ${data.department || '-'}\n` +
+                    `💰 งบประมาณ: ${data.totalBudget.toLocaleString('th-TH')} บาท\n\n` +
+                    `❗ การลบข้อมูลไม่สามารถยกเลิกได้ คุณต้องการดำเนินการต่อหรือไม่?`
+                );
+                
+                if (confirmation) {
+                    deleteSurveyRecord(index);
+                }
+            } else {
+                alert('❌ รหัสผ่านไม่ถูกต้อง!\n🚫 ไม่สามารถลบข้อมูลได้\n📞 กรุณาติดต่อผู้ดูแลระบบหากต้องการลบข้อมูล');
+            }
+        }
+
+        function requestStatusUpdatePassword(surveyId, newStatus) {
+            // Get current status to revert if password is wrong
+            const currentSurvey = surveyData.find(s => s.id === surveyId);
+            const currentStatus = currentSurvey ? currentSurvey.trackingStatus : 'pending_budget_approval';
+            
+            const password = prompt('🔒 กรุณากรอกรหัสผ่านเพื่อปรับสถานะการดำเนินการ:', '');
+            
+            if (password === null) {
+                // User canceled - revert dropdown
+                const dropdowns = document.querySelectorAll('select');
+                dropdowns.forEach(dropdown => {
+                    if (dropdown.onchange && dropdown.onchange.toString().includes(surveyId)) {
+                        dropdown.value = currentStatus;
+                    }
+                });
+                return;
+            }
+            
+            if (password === '01234') {
+                // Password correct - update status
+                updateTrackingStatus(surveyId, newStatus);
+                const statusInfo = getStatusInfo(newStatus);
+                alert(`✅ อัปเดตสถานะเรียบร้อยแล้ว!\n\n🔄 สถานะใหม่: ${statusInfo.icon} ${statusInfo.text}`);
+            } else {
+                // Password wrong - revert dropdown
+                const dropdowns = document.querySelectorAll('select');
+                dropdowns.forEach(dropdown => {
+                    if (dropdown.onchange && dropdown.onchange.toString().includes(surveyId)) {
+                        dropdown.value = currentStatus;
+                    }
+                });
+                alert('❌ รหัสผ่านไม่ถูกต้อง!\n🚫 ไม่สามารถปรับสถานะได้\n📞 กรุณาติดต่อผู้ดูแลระบบหากต้องการปรับสถานะ');
+            }
+        }
+
+        // View record details
+        function viewDetails(index) {
+            const record = surveyData[index];
+            if (!record) {
+                alert('❌ ไม่พบข้อมูลที่ต้องการดู');
+                return;
+            }
+
+            // Create detailed view modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            
+            // สร้างตารางรายการพัสดุ
+            let itemsTable = '';
+            if (record.items && record.items.length > 0) {
+                itemsTable = `
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">รายการที่ต้องการจัดซื้อ/จัดจ้าง</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border border-gray-300">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">ลำดับ</th>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">รายการ</th>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">รายละเอียดวัสดุ/งานจ้าง</th>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">วัตถุประสงค์</th>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">จำนวน</th>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">หน่วยนับ</th>
+                                        <th class="border border-gray-300 px-3 py-2 text-center text-sm font-medium">งบประมาณ/รายการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${record.items.map((item, i) => `
+                                        <tr>
+                                            <td class="border border-gray-300 px-2 py-2 text-center text-sm">${i + 1}</td>
+                                            <td class="border border-gray-300 px-2 py-2 text-sm">${item.description || '-'}</td>
+                                            <td class="border border-gray-300 px-2 py-2 text-sm">${item.note || '-'}</td>
+                                            <td class="border border-gray-300 px-2 py-2 text-sm">${item.purpose || '-'}</td>
+                                            <td class="border border-gray-300 px-2 py-2 text-center text-sm">${item.quantity || '0'}</td>
+                                            <td class="border border-gray-300 px-2 py-2 text-center text-sm">${item.unit || '-'}</td>
+                                            <td class="border border-gray-300 px-2 py-2 text-right text-sm">${item.total ? item.total.toLocaleString('th-TH') : '0'} บาท</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot class="bg-gray-50">
+                                    <tr>
+                                        <td colspan="6" class="border border-gray-300 px-2 py-2 text-right text-sm font-semibold">งบประมาณรวม:</td>
+                                        <td class="border border-gray-300 px-2 py-2 text-right text-sm font-bold text-green-600">${record.totalBudget ? parseInt(record.totalBudget).toLocaleString('th-TH') : '0'} บาท</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg max-w-6xl w-full m-4 max-h-screen overflow-y-auto">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900">📋 รายละเอียดแบบสำรวจการจัดซื้อจัดจ้าง</h2>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <!-- ข้อมูลผู้ตอบแบบสำรวจ -->
+                        <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">👤 ข้อมูลผู้ตอบแบบสำรวจ</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">ชื่อ-นามสกุล</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.fullName || '-'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">หน่วยงาน/ฝ่าย</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.department || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ข้อมูลโครงการและการจัดหา -->
+                        <div class="bg-green-50 rounded-lg p-4 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">🎯 ข้อมูลโครงการและการจัดหา</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">โครงการ</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.projectSelection || '-'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">ประเภทการจัดหา</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.procurementType || '-'}</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">พัสดุที่จัดหา</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.procurementItem || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${itemsTable}
+                        
+                        <!-- ข้อมูลเพิ่มเติม -->
+                        <div class="bg-yellow-50 rounded-lg p-4 mt-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">📄 ข้อมูลเพิ่มเติม</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">วันที่ส่งแบบสำรวจ</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.submitDate ? new Date(record.submitDate).toLocaleDateString('th-TH') : '-'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">วันที่อัปเดตล่าสุด</label>
+                                    <p class="mt-1 text-sm text-gray-900 font-medium">${record.lastUpdated ? new Date(record.lastUpdated).toLocaleDateString('th-TH') : '-'}</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">สถานะการดำเนินการ</label>
+                                    <p class="mt-1">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusInfo(record.trackingStatus).bgColor} ${getStatusInfo(record.trackingStatus).textColor}">
+                                            ${getStatusInfo(record.trackingStatus).text}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ปุ่มจัดการ -->
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button onclick="printSurveyDetails(${index})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                                🖨️ พิมพ์รายละเอียด
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium">
+                                ปิด
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Print record
+        function printRecord(index) {
+            const record = surveyData[index];
+            if (!record) {
+                alert('❌ ไม่พบข้อมูลที่ต้องการพิมพ์');
+                return;
+            }
+
+            // Create print window
+            const printWindow = window.open('', '_blank');
+            const statusInfo = getStatusInfo(record.trackingStatus);
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>รายการจัดซื้อจัดจ้าง - ${record.requesterName}</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+                        
+                        body {
+                            font-family: 'Sarabun', sans-serif;
+                            margin: 20px;
+                            line-height: 1.6;
+                            color: #333;
+                        }
+                        
+                        .header {
+                            text-align: center;
+                            border-bottom: 2px solid #4F46E5;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        
+                        .header h1 {
+                            color: #4F46E5;
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: 700;
+                        }
+                        
+                        .header h2 {
+                            color: #6B7280;
+                            margin: 5px 0 0 0;
+                            font-size: 16px;
+                            font-weight: 400;
+                        }
+                        
+                        .info-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 20px;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .info-item {
+                            border: 1px solid #E5E7EB;
+                            padding: 15px;
+                            border-radius: 8px;
+                            background-color: #F9FAFB;
+                        }
+                        
+                        .info-label {
+                            font-weight: 600;
+                            color: #374151;
+                            font-size: 14px;
+                            margin-bottom: 5px;
+                        }
+                        
+                        .info-value {
+                            color: #1F2937;
+                            font-size: 16px;
+                        }
+                        
+                        .status-badge {
+                            display: inline-block;
+                            padding: 6px 12px;
+                            border-radius: 20px;
+                            font-size: 14px;
+                            font-weight: 500;
+                            background-color: #10B981;
+                            color: white;
+                        }
+                        
+                        .footer {
+                            margin-top: 40px;
+                            text-align: center;
+                            font-size: 12px;
+                            color: #6B7280;
+                            border-top: 1px solid #E5E7EB;
+                            padding-top: 20px;
+                        }
+                        
+                        @media print {
+                            body { margin: 0; }
+                            .info-grid { grid-template-columns: 1fr; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>แบบสำรวจความต้องการจัดซื้อจัดจ้าง</h1>
+                        <h2>คณะมนุษยศาสตร์และสังคมศาสตร์</h2>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">โครงการ/หน่วยงาน</div>
+                            <div class="info-value">${record.projectSelection || '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">ชื่อผู้ขอ</div>
+                            <div class="info-value">${record.requesterName || '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">ประเภทการจัดซื้อจัดจ้าง</div>
+                            <div class="info-value">${record.procurementType || '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">รายการพัสดุ</div>
+                            <div class="info-value">${record.procurementItem || '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">งบประมาณที่ใช้</div>
+                            <div class="info-value">${record.totalBudget ? parseInt(record.totalBudget).toLocaleString() + ' บาท' : '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">วันที่ส่งแบบสำรวจ</div>
+                            <div class="info-value">${record.submissionDate || '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">วันที่อัปเดตล่าสุด</div>
+                            <div class="info-value">${record.lastUpdate || '-'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">สถานะการดำเนินการ</div>
+                            <div class="info-value">
+                                <span class="status-badge">${statusInfo.icon} ${statusInfo.text}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item" style="grid-column: 1 / -1;">
+                        <div class="info-label">รายละเอียดเพิ่มเติม</div>
+                        <div class="info-value">${record.additionalDetails || '-'}</div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>พิมพ์เมื่อ: ${new Date().toLocaleDateString('th-TH', {
+                            year: 'numeric',
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</p>
+                        <p>ระบบแบบสำรวจความต้องการจัดซื้อจัดจ้าง คณะมนุษยศาสตร์และสังคมศาสตร์</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Wait for content to load then print
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
+        }
+
+        // Print detailed survey report
+        function printSurveyDetails(index) {
+            const record = surveyData[index];
+            if (!record) {
+                alert('❌ ไม่พบข้อมูลที่ต้องการพิมพ์');
+                return;
+            }
+
+            // Create print window
+            const printWindow = window.open('', '_blank');
+            
+            // สร้างตารางรายการพัสดุ
+            let itemsTable = '';
+            if (record.items && record.items.length > 0) {
+                itemsTable = `
+                    <div class="items-section">
+                        <h3>รายการที่ต้องการจัดซื้อ/จัดจ้าง</h3>
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th width="8%">ลำดับ</th>
+                                    <th width="20%">รายการ</th>
+                                    <th width="25%">รายละเอียดวัสดุ/งานจ้าง</th>
+                                    <th width="15%">วัตถุประสงค์</th>
+                                    <th width="8%">จำนวน</th>
+                                    <th width="8%">หน่วยนับ</th>
+                                    <th width="16%">งบประมาณ/รายการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${record.items.map((item, i) => `
+                                    <tr>
+                                        <td class="text-center">${i + 1}</td>
+                                        <td>${item.description || '-'}</td>
+                                        <td>${item.note || '-'}</td>
+                                        <td>${item.purpose || '-'}</td>
+                                        <td class="text-center">${item.quantity || '0'}</td>
+                                        <td class="text-center">${item.unit || '-'}</td>
+                                        <td class="text-right">${item.total ? item.total.toLocaleString('th-TH') : '0'} บาท</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="6" class="text-right total-label">งบประมาณรวม:</td>
+                                    <td class="text-right total-amount">${record.totalBudget ? parseInt(record.totalBudget).toLocaleString('th-TH') : '0'} บาท</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            }
+
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>รายละเอียดแบบสำรวจการจัดซื้อจัดจ้าง - ${record.fullName || 'ไม่ระบุ'}</title>
+                    <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+                        
+                        body {
+                            font-family: 'Sarabun', sans-serif;
+                            margin: 20px;
+                            line-height: 1.6;
+                            color: #333;
+                            font-size: 14px;
+                        }
+                        
+                        .header {
+                            text-align: center;
+                            border-bottom: 3px solid #2563EB;
+                            padding-bottom: 20px;
+                            margin-bottom: 30px;
+                        }
+                        
+                        .header h1 {
+                            color: #2563EB;
+                            margin: 0;
+                            font-size: 28px;
+                            font-weight: 700;
+                        }
+                        
+                        .header h2 {
+                            color: #6B7280;
+                            margin: 10px 0 0 0;
+                            font-size: 18px;
+                            font-weight: 500;
+                        }
+                        
+                        .section {
+                            margin-bottom: 25px;
+                            border: 1px solid #E5E7EB;
+                            border-radius: 8px;
+                            padding: 20px;
+                        }
+                        
+                        .section-title {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-bottom: 15px;
+                            color: #374151;
+                            border-bottom: 2px solid #F3F4F6;
+                            padding-bottom: 8px;
+                        }
+                        
+                        .info-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                        }
+                        
+                        .info-item {
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        
+                        .info-label {
+                            font-weight: 600;
+                            color: #6B7280;
+                            font-size: 13px;
+                            margin-bottom: 5px;
+                        }
+                        
+                        .info-value {
+                            font-weight: 500;
+                            color: #1F2937;
+                        }
+                        
+                        .items-section {
+                            margin-top: 20px;
+                        }
+                        
+                        .items-section h3 {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-bottom: 15px;
+                            color: #374151;
+                        }
+                        
+                        .items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            border: 1px solid #D1D5DB;
+                        }
+                        
+                        .items-table th,
+                        .items-table td {
+                            border: 1px solid #D1D5DB;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        
+                        .items-table th {
+                            background-color: #F9FAFB;
+                            font-weight: 600;
+                            font-size: 13px;
+                        }
+                        
+                        .items-table td {
+                            font-size: 12px;
+                        }
+                        
+                        .text-center {
+                            text-align: center;
+                        }
+                        
+                        .text-right {
+                            text-align: right;
+                        }
+                        
+                        .total-label {
+                            background-color: #F9FAFB;
+                            font-weight: 600;
+                        }
+                        
+                        .total-amount {
+                            background-color: #F0FDF4;
+                            font-weight: 700;
+                            color: #16A34A;
+                            font-size: 14px;
+                        }
+                        
+                        .status-badge {
+                            display: inline-block;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                        }
+                        
+                        .user-section { background-color: #EFF6FF; }
+                        .project-section { background-color: #F0FDF4; }
+                        .additional-section { background-color: #FFFBEB; }
+                        
+                        @media print {
+                            body { margin: 10px; }
+                            .section { break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>📋 รายละเอียดแบบสำรวจการจัดซื้อจัดจ้าง</h1>
+                        <h2>คณะมนุษยศาสตร์และสังคมศาสตร์</h2>
+                        <p style="margin: 10px 0 0 0; color: #6B7280;">วันที่พิมพ์: ${new Date().toLocaleDateString('th-TH')} เวลา: ${new Date().toLocaleTimeString('th-TH')}</p>
+                    </div>
+                    
+                    <div class="section user-section">
+                        <div class="section-title">👤 ข้อมูลผู้ตอบแบบสำรวจ</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">ชื่อ-นามสกุล</div>
+                                <div class="info-value">${record.fullName || '-'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">หน่วยงาน/ฝ่าย</div>
+                                <div class="info-value">${record.department || '-'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section project-section">
+                        <div class="section-title">🎯 ข้อมูลโครงการและการจัดหา</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">โครงการ</div>
+                                <div class="info-value">${record.projectSelection || '-'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">ประเภทการจัดหา</div>
+                                <div class="info-value">${record.procurementType || '-'}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="info-item">
+                                <div class="info-label">พัสดุที่จัดหา</div>
+                                <div class="info-value">${record.procurementItem || '-'}</div>
+                            </div>
+                        </div>
+                        ${itemsTable}
+                    </div>
+                    
+                    <div class="section additional-section">
+                        <div class="section-title">📄 ข้อมูลเพิ่มเติม</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">วันที่ส่งแบบสำรวจ</div>
+                                <div class="info-value">${record.submitDate ? new Date(record.submitDate).toLocaleDateString('th-TH') : '-'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">วันที่อัปเดตล่าสุด</div>
+                                <div class="info-value">${record.lastUpdated ? new Date(record.lastUpdated).toLocaleDateString('th-TH') : '-'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">สถานะการดำเนินการ</div>
+                                <div class="info-value">
+                                    <span class="status-badge" style="background-color: ${getStatusInfo(record.trackingStatus).color}20; color: ${getStatusInfo(record.trackingStatus).color};">
+                                        ${getStatusInfo(record.trackingStatus).text}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">งบประมาณรวมทั้งสิ้น</div>
+                                <div class="info-value" style="font-size: 16px; font-weight: 700; color: #16A34A;">
+                                    ${record.totalBudget ? parseInt(record.totalBudget).toLocaleString('th-TH') : '0'} บาท
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Wait for content to load then print
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
+        }
+
+        // Initialize tracking when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTrackingData();
+        });
     </script>
 
     <!-- Modern Footer -->
@@ -3109,10 +4376,10 @@
         
         // Check button state when page loads
         window.addEventListener('load', function() {
-            // Page loaded, no special actions needed
+            // Page loaded, initialize tracking data
+            loadTrackingData();
         });
     </script>
 
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9878565692c0893d',t:'MTc1OTI4MzcyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-

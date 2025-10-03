@@ -373,6 +373,29 @@
                             </div>
                         </div>
 
+                        <!-- เลือกประเภทการจัดหาและพัสดุที่จัดหา -->
+                        <div class="mb-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">ประเภทการจัดหา *</label>
+                                    <select id="procurementType" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" onchange="updateProcurementItems()" required>
+                                        <option value="">เลือกประเภทการจัดหา</option>
+                                        <option value="ซื้อ">🛒 ซื้อ</option>
+                                        <option value="จ้าง">🤝 จ้าง</option>
+                                        <option value="เช่า">🏠 เช่า</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">พัสดุที่จัดหา *</label>
+                                    <select id="procurementItem" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" disabled required>
+                                        <option value="">กรุณาเลือกประเภทการจัดหาก่อน</option>
+                                    </select>
+                                    <p class="text-xs text-gray-500 mt-1">เลือกประเภทการจัดหาก่อน เพื่อแสดงพัสดุที่เกี่ยวข้อง</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="overflow-x-auto">
                             <table class="w-full border-collapse border border-gray-300 rounded-lg">
                                 <thead class="bg-gray-50">
@@ -460,6 +483,9 @@
                             </button>
                             <button type="button" onclick="printCurrentSurvey()" class="print-button text-white px-8 py-3 rounded-lg font-medium text-lg shadow-lg">
                                 🖨️ พิมพ์แบบสำรวจ
+                            </button>
+                            <button type="button" onclick="printJobDetails()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                                📋 พิมพ์รายละเอียดงาน
                             </button>
                         </div>
                     </div>
@@ -1178,6 +1204,93 @@
             displaySelectedFiles();
         }
 
+        // Procurement type and item management
+        function updateProcurementItems() {
+            const procurementType = document.getElementById('procurementType').value;
+            const procurementItemSelect = document.getElementById('procurementItem');
+            
+            // Clear existing options
+            procurementItemSelect.innerHTML = '';
+            
+            if (!procurementType) {
+                procurementItemSelect.disabled = true;
+                procurementItemSelect.innerHTML = '<option value="">กรุณาเลือกประเภทการจัดหาก่อน</option>';
+                return;
+            }
+            
+            procurementItemSelect.disabled = false;
+            procurementItemSelect.innerHTML = '<option value="">เลือกพัสดุที่จัดหา</option>';
+            
+            // Define procurement items by type
+            const procurementItems = {
+                'ซื้อ': [
+                    '📱 วัสดุสำนักงาน',
+                    '💻 อุปกรณ์คอมพิวเตอร์',
+                    '📚 วัสดุการศึกษา',
+                    '🔧 เครื่องมือและอุปกรณ์',
+                    '🏠 วัสดุก่อสร้าง',
+                    '🚗 วัสดุยานพาหนะ',
+                    '⚡ วัสดุไฟฟ้า',
+                    '📡 วัสดุโทรคมนาคม',
+                    '🧪 วัสดุวิทยาศาสตร์',
+                    '🏥 วัสดุการแพทย์',
+                    '🍽️ วัสดุครัว',
+                    '🧹 วัสดุทำความสะอาด',
+                    '�️ ครุภัณฑ์คอมพิวเตอร์',
+                    '🪑 ครุภัณฑ์สำนักงาน',
+                    '📹 ครุภัณฑ์โสตทัศนูปกรณ์',
+                    '🔬 ครุภัณฑ์วิทยาศาสตร์',
+                    '🏥 ครุภัณฑ์การแพทย์',
+                    '🚗 ครุภัณฑ์ยานพาหนะ',
+                    '🏗️ ครุภัณฑ์ก่อสร้าง',
+                    '🍽️ ครุภัณฑ์ครัว',
+                    '💡 ครุภัณฑ์ไฟฟ้า',
+                    '🎵 ครุภัณฑ์ดนตรี',
+                    '🏃 ครุภัณฑ์กีฬา',
+                    '�📦 วัสดุอื่นๆ'
+                ],
+                'จ้าง': [
+                    '🔨 งานก่อสร้าง',
+                    '🎨 งานออกแบบ',
+                    '💼 งานที่ปรึกษา',
+                    '📊 งานวิจัย',
+                    '🏫 งานฝึกอบรม',
+                    '📸 งานสื่อและประชาสัมพันธ์',
+                    '🖥️ งานพัฒนาระบบ',
+                    '🔧 งานซ่อมบำรุง',
+                    '🚛 งานขนส่ง',
+                    '🛡️ งานรักษาความปลอดภัย',
+                    '🧹 งานทำความสะอาด',
+                    '🌳 งานดูแลภูมิทัศน์',
+                    '🛠️ งานจ้างทำครุภัณฑ์',
+                    '📋 งานอื่นๆ'
+                ],
+                'เช่า': [
+                    '🏢 เช่าสถานที่',
+                    '🚗 เช่ายานพาหนะ',
+                    '💻 เช่าอุปกรณ์คอมพิวเตอร์',
+                    '🎵 เช่าอุปกรณ์เสียง',
+                    '📹 เช่าอุปกรณ์โสตทัศนูปกรณ์',
+                    '🏗️ เช่าเครื่องจักร',
+                    '🪑 เช่าเฟอร์นิเจอร์',
+                    '🎪 เช่าอุปกรณ์งานจัดงาน',
+                    '📱 เช่าอุปกรณ์โทรคมนาคม',
+                    '🏥 เช่าอุปกรณ์การแพทย์',
+                    '📦 เช่าอื่นๆ'
+                ]
+            };
+            
+            // Add options based on selected type
+            if (procurementItems[procurementType]) {
+                procurementItems[procurementType].forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    procurementItemSelect.appendChild(option);
+                });
+            }
+        }
+
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1195,12 +1308,28 @@
                 return;
             }
             
+            // ตรวจสอบการเลือกประเภทการจัดหา
+            const procurementType = document.getElementById('procurementType').value;
+            if (!procurementType) {
+                alert('❌ กรุณาเลือกประเภทการจัดหา');
+                return;
+            }
+            
+            // ตรวจสอบการเลือกพัสดุที่จัดหา
+            const procurementItem = document.getElementById('procurementItem').value;
+            if (!procurementItem) {
+                alert('❌ กรุณาเลือกพัสดุที่จัดหา');
+                return;
+            }
+            
             const formData = {
                 id: Date.now(),
                 fullName: document.getElementById('fullName').value,
                 department: document.getElementById('department').value,
                 submitDate: document.getElementById('submitDate').value,
                 projectSelection: projectSelection,
+                procurementType: procurementType,
+                procurementItem: procurementItem,
                 quotationFiles: collectFileInfo(),
                 usagePeriod: document.getElementById('usagePeriod').value,
                 urgency: urgency.value,
@@ -1517,6 +1646,8 @@
                                 <p class="text-gray-600">ผู้ส่งแบบสำรวจ: ${data.fullName}</p>
                                 <p class="text-gray-600">หน่วยงาน: ${data.department}</p>
                                 <p class="text-gray-600">โครงการ: ${data.projectSelection || '-'}</p>
+                                <p class="text-gray-600">ประเภทการจัดหา: ${data.procurementType || '-'}</p>
+                                <p class="text-gray-600">พัสดุที่จัดหา: ${data.procurementItem || '-'}</p>
                                 <p class="text-gray-600">เอกสารแนบ: ${data.quotationFiles && data.quotationFiles.length > 0 ? data.quotationFiles.length + ' ไฟล์' : 'ไม่มีไฟล์แนบ'}</p>
                                 <p class="text-gray-600">วันที่ส่งแบบสำรวจ: ${new Date(data.submitDate).toLocaleDateString('th-TH')}</p>
                             </div>
@@ -1729,6 +1860,17 @@
             document.getElementById('department').value = data.department;
             document.getElementById('submitDate').value = data.submitDate;
             document.getElementById('projectSelection').value = data.projectSelection || '';
+            document.getElementById('procurementType').value = data.procurementType || '';
+            
+            // Update procurement items based on type and set value
+            if (data.procurementType) {
+                updateProcurementItems();
+                // Use setTimeout to ensure the options are loaded before setting value
+                setTimeout(() => {
+                    document.getElementById('procurementItem').value = data.procurementItem || '';
+                }, 100);
+            }
+            
             document.getElementById('quotationFile').value = ''; // Clear file input
             document.getElementById('fileList').innerHTML = ''; // Clear file list
             document.getElementById('usagePeriod').value = data.usagePeriod;
@@ -1777,6 +1919,8 @@
             const department = document.getElementById('department').value;
             const submitDate = document.getElementById('submitDate').value;
             const projectSelection = document.getElementById('projectSelection').value;
+            const procurementType = document.getElementById('procurementType').value;
+            const procurementItem = document.getElementById('procurementItem').value;
             const quotationFiles = collectFileInfo();
             const usagePeriod = document.getElementById('usagePeriod').value;
             const urgencyElement = document.querySelector('input[name="urgency"]:checked');
@@ -1791,6 +1935,18 @@
             // ตรวจสอบการเลือกโครงการ
             if (!projectSelection) {
                 alert('❌ กรุณาเลือกโครงการก่อนพิมพ์');
+                return;
+            }
+            
+            // ตรวจสอบการเลือกประเภทการจัดหา
+            if (!procurementType) {
+                alert('❌ กรุณาเลือกประเภทการจัดหาก่อนพิมพ์');
+                return;
+            }
+            
+            // ตรวจสอบการเลือกพัสดุที่จัดหา
+            if (!procurementItem) {
+                alert('❌ กรุณาเลือกพัสดุที่จัดหาก่อนพิมพ์');
                 return;
             }
             
@@ -1979,6 +2135,14 @@
                         <div class="info-item">
                             <div class="info-label">โครงการ:</div>
                             <div class="info-value">${projectSelection}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">ประเภทการจัดหา:</div>
+                            <div class="info-value">${procurementType}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">พัสดุที่จัดหา:</div>
+                            <div class="info-value">${procurementItem}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">วันที่กรอกข้อมูล:</div>
@@ -2179,6 +2343,245 @@
                     </div>
 
                     <div class="print-date">
+                        พิมพ์เมื่อ: ${new Date().toLocaleDateString('th-TH', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
+                    </div>
+
+                    <div class="no-print">
+                        <button class="print-btn" onclick="window.print()">🖨️ พิมพ์</button>
+                        <button class="close-btn" onclick="window.close()">❌ ปิดหน้าต่าง</button>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Open print window
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.focus();
+        }
+
+        function printJobDetails() {
+            // Collect current form data
+            const fullName = document.getElementById('fullName').value;
+            const department = document.getElementById('department').value;
+            const projectSelection = document.getElementById('projectSelection').value;
+            const procurementType = document.getElementById('procurementType').value;
+            const procurementItem = document.getElementById('procurementItem').value;
+
+            // Validate required fields
+            if (!fullName || !department) {
+                alert('❌ กรุณากรอกข้อมูลผู้ตอบแบบสำรวจและหน่วยงานก่อนพิมพ์');
+                return;
+            }
+            
+            if (!projectSelection) {
+                alert('❌ กรุณาเลือกโครงการก่อนพิมพ์');
+                return;
+            }
+            
+            if (!procurementType) {
+                alert('❌ กรุณาเลือกประเภทการจัดหาก่อนพิมพ์');
+                return;
+            }
+            
+            if (!procurementItem) {
+                alert('❌ กรุณาเลือกพัสดุที่จัดหาก่อนพิมพ์');
+                return;
+            }
+
+            // Collect items data
+            const rows = document.querySelectorAll('#itemsTable tr');
+            let items = [];
+            
+            rows.forEach((row, index) => {
+                const description = row.cells[1].querySelector('textarea').value;
+                const note = row.cells[2].querySelector('textarea').value;
+                const purpose = row.cells[3].querySelector('select').value;
+                const quantity = parseFloat(row.cells[4].querySelector('input').value) || 0;
+                const unit = row.cells[5].querySelector('input').value;
+
+                // Only include items with description
+                if (description.trim()) {
+                    items.push({
+                        no: items.length + 1,
+                        description: description,
+                        note: note,
+                        purpose: purpose,
+                        quantity: quantity,
+                        unit: unit
+                    });
+                }
+            });
+
+            if (items.length === 0) {
+                alert('❌ กรุณากรอกรายการอย่างน้อย 1 รายการก่อนพิมพ์');
+                return;
+            }
+
+            // Create print content for job details
+            const printContent = `
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>รายละเอียดงาน</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        @media print {
+                            body { margin: 0; }
+                            .no-print { display: none; }
+                        }
+                        body {
+                            font-family: 'Sarabun', sans-serif;
+                            font-size: 14px;
+                            line-height: 1.6;
+                            margin: 20px;
+                            color: #333;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #2563eb;
+                            padding-bottom: 15px;
+                        }
+                        .header h1 {
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin: 0 0 10px 0;
+                            color: #1e40af;
+                        }
+                        .project-info {
+                            background: #f8fafc;
+                            padding: 20px;
+                            border-radius: 8px;
+                            margin-bottom: 25px;
+                            border: 1px solid #e5e7eb;
+                        }
+                        .project-info h2 {
+                            font-size: 16px;
+                            font-weight: bold;
+                            margin: 0 0 15px 0;
+                            color: #1e40af;
+                        }
+                        .info-row {
+                            display: flex;
+                            margin-bottom: 8px;
+                        }
+                        .info-label {
+                            font-weight: 600;
+                            width: 150px;
+                            color: #374151;
+                        }
+                        .info-value {
+                            flex: 1;
+                            color: #111827;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            font-size: 13px;
+                        }
+                        th, td {
+                            border: 1px solid #374151;
+                            padding: 10px 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f3f4f6;
+                            font-weight: bold;
+                            text-align: center;
+                            color: #374151;
+                        }
+                        .text-center { text-align: center; }
+                        .footer {
+                            margin-top: 30px;
+                            padding-top: 20px;
+                            border-top: 1px solid #e5e7eb;
+                            text-align: right;
+                            color: #6b7280;
+                            font-size: 12px;
+                        }
+                        .print-btn, .close-btn {
+                            background: #3b82f6;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            margin: 5px;
+                            font-size: 14px;
+                            font-family: 'Sarabun', sans-serif;
+                        }
+                        .close-btn {
+                            background: #ef4444;
+                        }
+                        .print-btn:hover {
+                            background: #2563eb;
+                        }
+                        .close-btn:hover {
+                            background: #dc2626;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>รายละเอียดงาน</h1>
+                        <p>คณะมนุษยศาสตร์และสังคมศาสตร์ มหาวิทยาลัยราชภัฏสุราษฎร์ธานี</p>
+                    </div>
+
+                    <div class="project-info">
+                        <h2>ข้อมูลโครงการ</h2>
+                        <div class="info-row">
+                            <div class="info-label">ชื่อโครงการ:</div>
+                            <div class="info-value">${projectSelection}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">ประเภทการจัดหา:</div>
+                            <div class="info-value">${procurementType}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">พัสดุที่จัดหา:</div>
+                            <div class="info-value">${procurementItem}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">ผู้กำหนดรายละเอียด:</div>
+                            <div class="info-value">${fullName} (${department})</div>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">ลำดับ</th>
+                                <th style="width: 25%;">รายการ</th>
+                                <th style="width: 30%;">รายละเอียดวัสดุ/งานจ้าง</th>
+                                <th style="width: 17%;">วัตถุประสงค์</th>
+                                <th style="width: 10%;">จำนวน</th>
+                                <th style="width: 10%;">หน่วยนับ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td class="text-center">${item.no}</td>
+                                    <td>${item.description}</td>
+                                    <td>${item.note || '-'}</td>
+                                    <td class="text-center">${item.purpose || '-'}</td>
+                                    <td class="text-center">${item.quantity}</td>
+                                    <td class="text-center">${item.unit || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="footer">
                         พิมพ์เมื่อ: ${new Date().toLocaleDateString('th-TH', {
                             year: 'numeric',
                             month: 'long',
@@ -2419,6 +2822,8 @@
                             <div class="detail-section">
                                 <div class="detail-header">${index + 1}. ${data.fullName} (${data.department})</div>
                                 <div class="detail-info">โครงการ: ${data.projectSelection || '-'}</div>
+                                <div class="detail-info">ประเภทการจัดหา: ${data.procurementType || '-'}</div>
+                                <div class="detail-info">พัสดุที่จัดหา: ${data.procurementItem || '-'}</div>
                                 <div class="detail-info">วันที่ส่ง: ${new Date(data.submitDate).toLocaleDateString('th-TH')}</div>
                                 <div class="detail-info">ความเร่งด่วน: ${data.urgency || '-'}</div>
                                 

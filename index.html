@@ -3188,19 +3188,28 @@
 
         // Update tracking status for a specific survey
         function updateTrackingStatus(surveyId, newStatus, notes = '') {
-            const surveyIndex = surveyData.findIndex(survey => survey.id === surveyId);
+            const surveyIndex = surveyData.findIndex(survey => survey.id == surveyId);
             if (surveyIndex !== -1) {
                 surveyData[surveyIndex].trackingStatus = newStatus;
                 surveyData[surveyIndex].lastUpdated = new Date().toISOString();
                 surveyData[surveyIndex].trackingNotes = notes;
                 
-                // Save to localStorage and Firebase
+                // Save to localStorage
                 localStorage.setItem('surveyData', JSON.stringify(surveyData));
-                saveSurveyToFirebase(surveyData[surveyIndex]);
                 
-                // Reload tracking data
+                // Sync to Firebase
+                syncSurveyDataToFirebase(surveyData).then(() => {
+                    console.log('✅ Survey data synced to Firebase after status update');
+                }).catch((error) => {
+                    console.error('❌ Failed to sync survey data to Firebase:', error);
+                });
+                
+                // Reload tracking data to update charts
                 loadTrackingData();
+                
+                return true;
             }
+            return false;
         }
 
         // Filter tracking data by status
@@ -3651,35 +3660,38 @@
 
         function requestStatusUpdatePassword(surveyId, newStatus) {
             // Get current status to revert if password is wrong
-            const currentSurvey = surveyData.find(s => s.id === surveyId);
-            const currentStatus = currentSurvey ? currentSurvey.trackingStatus : 'pending_budget_approval';
+            const currentSurvey = surveyData.find(s => s.id == surveyId);
+            const currentStatus = currentSurvey ? (currentSurvey.trackingStatus || 'pending_budget_approval') : 'pending_budget_approval';
+            
+            // Find the dropdown element that triggered this change
+            const dropdown = event.target;
             
             const password = prompt('🔒 กรุณากรอกรหัสผ่านเพื่อปรับสถานะการดำเนินการ:', '');
             
             if (password === null) {
                 // User canceled - revert dropdown
-                const dropdowns = document.querySelectorAll('select');
-                dropdowns.forEach(dropdown => {
-                    if (dropdown.onchange && dropdown.onchange.toString().includes(surveyId)) {
-                        dropdown.value = currentStatus;
-                    }
-                });
+                dropdown.value = currentStatus;
                 return;
             }
             
             if (password === '01234') {
                 // Password correct - update status
-                updateTrackingStatus(surveyId, newStatus);
-                const statusInfo = getStatusInfo(newStatus);
-                alert(`✅ อัปเดตสถานะเรียบร้อยแล้ว!\n\n🔄 สถานะใหม่: ${statusInfo.icon} ${statusInfo.text}`);
+                const success = updateTrackingStatus(surveyId, newStatus);
+                
+                if (success) {
+                    // Update dropdown styling to match new status
+                    const statusInfo = getStatusInfo(newStatus);
+                    dropdown.className = `text-xs px-2 py-1 rounded border border-gray-300 ${statusInfo.bgColor} ${statusInfo.textColor} cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500`;
+                    
+                    alert(`✅ อัปเดตสถานะเรียบร้อยแล้ว!\n\n🔄 สถานะใหม่: ${statusInfo.text}`);
+                } else {
+                    // Failed to update - revert dropdown
+                    dropdown.value = currentStatus;
+                    alert('❌ ไม่สามารถอัปเดตสถานะได้ กรุณาลองใหม่');
+                }
             } else {
                 // Password wrong - revert dropdown
-                const dropdowns = document.querySelectorAll('select');
-                dropdowns.forEach(dropdown => {
-                    if (dropdown.onchange && dropdown.onchange.toString().includes(surveyId)) {
-                        dropdown.value = currentStatus;
-                    }
-                });
+                dropdown.value = currentStatus;
                 alert('❌ รหัสผ่านไม่ถูกต้อง!\n🚫 ไม่สามารถปรับสถานะได้\n📞 กรุณาติดต่อผู้ดูแลระบบหากต้องการปรับสถานะ');
             }
         }

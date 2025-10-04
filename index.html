@@ -273,12 +273,29 @@
                     <h2 class="text-xl font-bold text-gray-800 mb-4 text-center border-b-2 border-blue-300 pb-2">
                         💰 งบประมาณประจำปี พ.ศ. 2569
                     </h2>
-                    <div class="space-y-4">
+                    <div class="space-y-6">
+                        <!-- โครงการ 1: งบแผ่นดิน -->
                         <div class="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
-                            <div class="flex justify-between items-center mb-2">
+                            <div class="flex justify-between items-center mb-3">
                                 <h3 class="font-semibold text-blue-800">โครงการพัฒนาคุณภาพการเรียนการสอน คณะมนุษยศาสตร์และสังคมศาสตร์</h3>
                                 <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">(งบแผ่นดิน)</span>
                             </div>
+                            
+                            <!-- แถบแสดงสัดส่วน -->
+                            <div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">การใช้งบประมาณ</span>
+                                    <span id="project1Percentage" class="font-semibold text-gray-800">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                    <div id="project1ProgressBar" class="bg-gradient-to-r from-green-400 to-green-500 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>ใช้แล้ว: <span id="project1Used" class="font-medium">0 บาท</span></span>
+                                    <span>คงเหลือ: <span id="project1Remaining" class="font-medium">1,442,200 บาท</span></span>
+                                </div>
+                            </div>
+                            
                             <div class="grid md:grid-cols-2 gap-4 text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">งบรวมทั้งหมด:</span>
@@ -286,16 +303,33 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">คงเหลือ:</span>
-                                    <span class="font-semibold text-orange-600">________ บาท</span>
+                                    <span id="project1RemainingDisplay" class="font-semibold text-orange-600">1,442,200 บาท</span>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- โครงการ 2: งบเงินรายได้ -->
                         <div class="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
-                            <div class="flex justify-between items-center mb-2">
+                            <div class="flex justify-between items-center mb-3">
                                 <h3 class="font-semibold text-blue-800">โครงการพัฒนาคุณภาพการบริหารจัดการ คณะมนุษยศาสตร์และสังคมศาสตร์</h3>
                                 <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">(งบเงินรายได้)</span>
                             </div>
+                            
+                            <!-- แถบแสดงสัดส่วน -->
+                            <div class="mb-3">
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-600">การใช้งบประมาณ</span>
+                                    <span id="project2Percentage" class="font-semibold text-gray-800">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                    <div id="project2ProgressBar" class="bg-gradient-to-r from-green-400 to-green-500 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>ใช้แล้ว: <span id="project2Used" class="font-medium">0 บาท</span></span>
+                                    <span>คงเหลือ: <span id="project2Remaining" class="font-medium">4,047,748 บาท</span></span>
+                                </div>
+                            </div>
+                            
                             <div class="grid md:grid-cols-2 gap-4 text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">งบรวมทั้งหมด:</span>
@@ -303,7 +337,7 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">คงเหลือ:</span>
-                                    <span class="font-semibold text-orange-600">________ บาท</span>
+                                    <span id="project2RemainingDisplay" class="font-semibold text-orange-600">4,047,748 บาท</span>
                                 </div>
                             </div>
                         </div>
@@ -1295,19 +1329,84 @@
         // Set current date
         document.getElementById('submitDate').value = new Date().toISOString().split('T')[0];
 
+        // Initial budget display update
+        setTimeout(() => {
+            updateBudgetDisplay();
+        }, 100);
+
         function updateBudgetDisplay() {
-            // Update project 1 (งบแผ่นดิน)
+            // Project 1: งบแผ่นดิน
             const project1Key = 'โครงการพัฒนาคุณภาพการเรียนการสอน คณะมนุษยศาสตร์และสังคมศาสตร์ (งบแผ่นดิน)';
-            const project1Remaining = document.querySelector('.bg-white.p-4.rounded-lg.shadow-sm.border.border-blue-100:first-child .grid.md\\:grid-cols-2.gap-4.text-sm .flex.justify-between:last-child .font-semibold.text-orange-600');
-            if (project1Remaining && projectBudgets[project1Key]) {
-                project1Remaining.textContent = projectBudgets[project1Key].remaining.toLocaleString('th-TH') + ' บาท';
+            const project1Data = projectBudgets[project1Key];
+            
+            if (project1Data) {
+                const project1Used = project1Data.total - project1Data.remaining;
+                const project1Percentage = ((project1Used / project1Data.total) * 100).toFixed(1);
+                const project1PercentageNum = parseFloat(project1Percentage);
+                
+                // Update progress bar and percentage
+                const project1ProgressBar = document.getElementById('project1ProgressBar');
+                const project1PercentageDisplay = document.getElementById('project1Percentage');
+                const project1UsedDisplay = document.getElementById('project1Used');
+                const project1RemainingDisplay = document.getElementById('project1Remaining');
+                const project1RemainingDisplay2 = document.getElementById('project1RemainingDisplay');
+                
+                if (project1ProgressBar) {
+                    // Show progress bar only when there's actual usage
+                    if (project1PercentageNum === 0) {
+                        project1ProgressBar.style.width = '0%';
+                    } else {
+                        // Show at least 1% width for visibility when there's usage
+                        const displayWidth = project1PercentageNum < 1 ? 1 : project1PercentageNum;
+                        project1ProgressBar.style.width = displayWidth + '%';
+                    }
+                }
+                if (project1PercentageDisplay) project1PercentageDisplay.textContent = project1Percentage + '%';
+                if (project1UsedDisplay) project1UsedDisplay.textContent = project1Used.toLocaleString('th-TH') + ' บาท';
+                if (project1RemainingDisplay) project1RemainingDisplay.textContent = project1Data.remaining.toLocaleString('th-TH') + ' บาท';
+                if (project1RemainingDisplay2) project1RemainingDisplay2.textContent = project1Data.remaining.toLocaleString('th-TH') + ' บาท';
+                
+                // Change progress bar color - always green when there's any usage
+                if (project1ProgressBar) {
+                    project1ProgressBar.className = 'bg-gradient-to-r from-green-400 to-green-500 h-4 rounded-full transition-all duration-500 ease-out';
+                }
             }
             
-            // Update project 2 (งบเงินรายได้)
+            // Project 2: งบเงินรายได้
             const project2Key = 'โครงการพัฒนาคุณภาพการบริหารจัดการ คณะมนุษยศาสตร์และสังคมศาสตร์ (งบเงินรายได้)';
-            const project2Remaining = document.querySelector('.bg-white.p-4.rounded-lg.shadow-sm.border.border-blue-100:last-child .grid.md\\:grid-cols-2.gap-4.text-sm .flex.justify-between:last-child .font-semibold.text-orange-600');
-            if (project2Remaining && projectBudgets[project2Key]) {
-                project2Remaining.textContent = projectBudgets[project2Key].remaining.toLocaleString('th-TH') + ' บาท';
+            const project2Data = projectBudgets[project2Key];
+            
+            if (project2Data) {
+                const project2Used = project2Data.total - project2Data.remaining;
+                const project2Percentage = ((project2Used / project2Data.total) * 100).toFixed(1);
+                const project2PercentageNum = parseFloat(project2Percentage);
+                
+                // Update progress bar and percentage
+                const project2ProgressBar = document.getElementById('project2ProgressBar');
+                const project2PercentageDisplay = document.getElementById('project2Percentage');
+                const project2UsedDisplay = document.getElementById('project2Used');
+                const project2RemainingDisplay = document.getElementById('project2Remaining');
+                const project2RemainingDisplay2 = document.getElementById('project2RemainingDisplay');
+                
+                if (project2ProgressBar) {
+                    // Show progress bar only when there's actual usage
+                    if (project2PercentageNum === 0) {
+                        project2ProgressBar.style.width = '0%';
+                    } else {
+                        // Show at least 1% width for visibility when there's usage
+                        const displayWidth = project2PercentageNum < 1 ? 1 : project2PercentageNum;
+                        project2ProgressBar.style.width = displayWidth + '%';
+                    }
+                }
+                if (project2PercentageDisplay) project2PercentageDisplay.textContent = project2Percentage + '%';
+                if (project2UsedDisplay) project2UsedDisplay.textContent = project2Used.toLocaleString('th-TH') + ' บาท';
+                if (project2RemainingDisplay) project2RemainingDisplay.textContent = project2Data.remaining.toLocaleString('th-TH') + ' บาท';
+                if (project2RemainingDisplay2) project2RemainingDisplay2.textContent = project2Data.remaining.toLocaleString('th-TH') + ' บาท';
+                
+                // Change progress bar color - always green when there's any usage
+                if (project2ProgressBar) {
+                    project2ProgressBar.className = 'bg-gradient-to-r from-green-400 to-green-500 h-4 rounded-full transition-all duration-500 ease-out';
+                }
             }
         }
 
